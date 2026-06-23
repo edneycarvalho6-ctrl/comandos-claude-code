@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Guia Completo dos Comandos do Claude Code</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: #1f2328; line-height: 1.5; font-size: 11px; margin: 0; padding: 0 4px;
+  }
+  h1 {
+    font-size: 26px; color: #b8442b; margin: 0 0 4px; border-bottom: 3px solid #b8442b;
+    padding-bottom: 8px;
+  }
+  h2 {
+    font-size: 17px; color: #fff; background: #b8442b; padding: 6px 10px; margin: 26px 0 10px;
+    border-radius: 4px; page-break-after: avoid;
+  }
+  h3 {
+    font-size: 13px; color: #b8442b; margin: 18px 0 6px; border-bottom: 1px solid #e3c9bf;
+    padding-bottom: 3px; page-break-after: avoid;
+  }
+  .lead {
+    background: #fcf3ef; border-left: 4px solid #b8442b; padding: 8px 12px; margin: 10px 0 4px;
+    border-radius: 0 4px 4px 0; font-size: 10.5px;
+  }
+  .meta { color: #6a737d; font-size: 9.5px; margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 14px; font-size: 10px; page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  th { background: #f0e2dc; color: #7a2e1c; text-align: left; padding: 5px 8px; border: 1px solid #e0cabf; }
+  td { padding: 5px 8px; border: 1px solid #e8dad3; vertical-align: top; }
+  td:first-child { white-space: nowrap; }
+  tr:nth-child(even) td { background: #faf6f4; }
+  code {
+    font-family: "Cascadia Code", "Consolas", monospace; background: #f1efed; color: #b8442b;
+    padding: 1px 4px; border-radius: 3px; font-size: 9.5px;
+  }
+  th code { background: rgba(255,255,255,.55); color: #7a2e1c; }
+  td code { background: #f4eeeb; }
+  ul { margin: 6px 0 14px; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .note { background: #fff8e6; border-left: 4px solid #e0a800; padding: 7px 11px; margin: 8px 0;
+    border-radius: 0 4px 4px 0; font-size: 9.8px; }
+  .toc { columns: 2; column-gap: 26px; font-size: 10.5px; }
+  .toc a { color: #b8442b; text-decoration: none; }
+  .warn { color: #c0392b; font-weight: 600; }
+  footer { margin-top: 26px; padding-top: 10px; border-top: 1px solid #e0cabf; color: #6a737d;
+    font-size: 9px; font-style: italic; }
+  h2, h3 { page-break-after: avoid; }
+</style>
+</head>
+<body>
+
+<h1>Guia Completo dos Comandos do Claude Code</h1>
+<div class="lead">Referência em português de <b>todos os comandos</b> do Claude Code: comandos de barra (<code>/</code>), comandos de terminal (<code>claude ...</code>), atalhos de teclado e modos especiais.</div>
+<div class="meta">Baseado na documentação oficial (versão 2.1.x) &mdash; code.claude.com/docs &mdash; Atualizado em 23/06/2026.</div>
+<div class="lead"><b>Como usar:</b> dentro do Claude Code digite <code>/</code> para ver os comandos disponíveis. No terminal (PowerShell/CMD) digite <code>claude ...</code>. Nem todo comando aparece para todos &mdash; depende do plano, sistema e ambiente.</div>
+
+<h2>Índice</h2>
+<div class="toc">
+1. Comandos de barra (<code>/</code>) — dentro do Claude Code<br>
+2. Comandos de terminal (CLI) — no PowerShell<br>
+3. Flags (opções) da linha de comando<br>
+4. Atalhos de teclado<br>
+5. Modos especiais e prefixos<br>
+6. Modo Vim (edição estilo Vim)<br>
+7. "O que isso significa pra mim" — guia rápido do dia a dia<br>
+</div>
+
+<h2>1. Comandos de barra (/) — dentro do Claude Code</h2>
+<p style="font-size:10px">Digitados no início da mensagem. O texto após o comando vira "argumento". <code>&lt;arg&gt;</code> = obrigatório, <code>[arg]</code> = opcional.</p>
+
+<h3>Configuração e início de projeto</h3>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>/init</code></td><td>Cria um arquivo <code>CLAUDE.md</code> inicial documentando o seu projeto (guia para o Claude).</td></tr>
+<tr><td><code>/memory</code></td><td>Edita os arquivos de memória <code>CLAUDE.md</code>; liga/desliga a memória automática e mostra suas entradas.</td></tr>
+<tr><td><code>/config [chave=valor]</code></td><td>Abre as configurações (tema, modelo, estilo de saída...). Pode setar direto, ex.: <code>/config theme=dark</code>. Apelido: <code>/settings</code>.</td></tr>
+<tr><td><code>/permissions</code></td><td>Gerencia regras de permissão (permitir / perguntar / negar) das ferramentas. Apelido: <code>/allowed-tools</code>.</td></tr>
+<tr><td><code>/agents</code></td><td>Cria e gerencia subagentes de IA (delegação de tarefas).</td></tr>
+<tr><td><code>/mcp</code></td><td>Gerencia conexões com servidores MCP e autenticação OAuth.</td></tr>
+<tr><td><code>/hooks</code></td><td>Vê e configura os <i>hooks</i> (ganchos) que disparam em eventos de ferramentas.</td></tr>
+<tr><td><code>/skills</code></td><td>Lista as <i>skills</i> (habilidades) disponíveis; permite ocultar alguma.</td></tr>
+<tr><td><code>/plugin [subcomando]</code></td><td>Gerencia plugins (<code>list</code>, <code>install</code>, <code>enable</code>, <code>disable</code>...).</td></tr>
+<tr><td><code>/reload-plugins</code></td><td>Recarrega plugins sem reiniciar (use <code>--force</code> se mudar ferramentas MCP).</td></tr>
+<tr><td><code>/reload-skills</code></td><td>Re-escaneia skills/comandos adicionados durante a sessão.</td></tr>
+<tr><td><code>/statusline</code></td><td>Configura a barra de status do Claude Code.</td></tr>
+<tr><td><code>/keybindings</code></td><td>Abre o arquivo de atalhos de teclado para personalizar.</td></tr>
+<tr><td><code>/theme</code></td><td>Muda o tema de cores (claro, escuro, automático, daltônico...).</td></tr>
+<tr><td><code>/terminal-setup</code></td><td>Configura o atalho <b>Shift+Enter</b> (nova linha) no seu terminal (VS Code, Cursor etc.).</td></tr>
+<tr><td><code>/ide</code></td><td>Gerencia a integração com a IDE e mostra o status.</td></tr>
+</table>
+
+<h3>Durante a tarefa</h3>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>/plan [descrição]</code></td><td>Entra no <b>modo de planejamento</b> (planeja antes de executar). Ex.: <code>/plan corrigir o bug de login</code>.</td></tr>
+<tr><td><code>/model [modelo]</code></td><td>Troca o modelo de IA (Opus, Sonnet, Haiku, Fable) e salva como padrão.</td></tr>
+<tr><td><code>/effort [nível]</code></td><td>Ajusta o "esforço" de raciocínio: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>, <code>ultracode</code>.</td></tr>
+<tr><td><code>/fast [on|off]</code></td><td>Liga/desliga o <b>modo rápido</b> (mesmo Opus, com saída mais veloz).</td></tr>
+<tr><td><code>/context [all]</code></td><td>Mostra o uso do contexto (janela) num grid colorido, com dicas de otimização.</td></tr>
+<tr><td><code>/compact [instruções]</code></td><td>Resume a conversa para liberar contexto. Pode focar o resumo em algo.</td></tr>
+<tr><td><code>/clear [nome]</code></td><td>Começa uma conversa nova com contexto vazio (mantém a memória do projeto). Apelidos: <code>/reset</code>, <code>/new</code>.</td></tr>
+<tr><td><code>/btw &lt;pergunta&gt;</code></td><td>Pergunta rápida "a propósito" sem poluir o histórico da conversa.</td></tr>
+<tr><td><code>/goal [condição]</code></td><td>Define uma meta: o Claude continua trabalhando entre turnos até cumprir.</td></tr>
+<tr><td><code>/recap</code></td><td>Gera um resumo de uma linha do que aconteceu na sessão.</td></tr>
+<tr><td><code>/copy [N]</code></td><td>Copia a última resposta do Claude (ou a N-ésima) para a área de transferência.</td></tr>
+<tr><td><code>/export [arquivo]</code></td><td>Exporta a conversa como texto (arquivo ou área de transferência).</td></tr>
+<tr><td><code>/diff</code></td><td>Abre um visualizador interativo das mudanças não commitadas e por turno.</td></tr>
+<tr><td><code>/focus</code></td><td>Mostra só o essencial (seu último prompt + resumo das ações + resposta final).</td></tr>
+<tr><td><code>/insights</code></td><td>Gera um relatório analisando suas sessões (padrões, pontos de atrito).</td></tr>
+</table>
+
+<div class="note"><b>Nota: <code>/plan</code> × <code>Shift+Tab</code> × <code>/ultraplan</code> — as três formas de planejar.</b> Todas levam ao <b>modo de planejamento</b> (o Claude propõe um plano e só executa após sua aprovação). A diferença é só <i>como</i> você entra nele:
+<ul style="margin:6px 0 0">
+<li><code>/plan [descrição]</code> — comando que entra no modo já com a tarefa. Ex.: <code>/plan corrigir o bug de login</code>.</li>
+<li><code>Shift+Tab</code> — atalho de teclado que alterna para o modo de planejamento (sem digitar).</li>
+<li><code>/ultraplan &lt;prompt&gt;</code> — o "primo grande": rascunha o plano numa sessão <b>na nuvem</b>, você revisa no navegador e manda executar. Para tarefas maiores.</li>
+</ul></div>
+
+<h3>Trabalho em paralelo e em segundo plano</h3>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>/background [prompt]</code></td><td>Destaca a sessão para rodar como <b>agente em segundo plano</b>, liberando o terminal. Apelido: <code>/bg</code>.</td></tr>
+<tr><td><code>/tasks</code></td><td>Vê e gerencia tudo que está rodando em segundo plano. Também como <code>/bashes</code>.</td></tr>
+<tr><td><code>/fork &lt;diretriz&gt;</code></td><td>Cria um subagente que herda a conversa e trabalha numa tarefa enquanto você continua.</td></tr>
+<tr><td><code>/branch [nome]</code></td><td>Ramifica a conversa neste ponto para tentar outra direção sem perder a original.</td></tr>
+<tr><td><code>/batch &lt;instrução&gt;</code></td><td>(Skill) Decompõe uma mudança grande em 5–30 unidades e roda cada uma em paralelo (worktrees).</td></tr>
+<tr><td><code>/loop [intervalo] [prompt]</code></td><td>(Skill) Roda um prompt repetidamente. Ex.: <code>/loop 5m verifique se o deploy terminou</code>. Apelido: <code>/proactive</code>.</td></tr>
+<tr><td><code>/workflows</code></td><td>Abre a visão de progresso dos <i>workflows</i> (orquestração de vários subagentes).</td></tr>
+<tr><td><code>/stop</code></td><td>Para a sessão em segundo plano à qual você está conectado.</td></tr>
+</table>
+
+<h3>Antes de "entregar" (revisão de código)</h3>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>/code-review [nível] [--fix] [--comment] [alvo]</code></td><td>(Skill) Revisa o <i>diff</i> atual buscando bugs e melhorias. <code>--fix</code> aplica correções; <code>ultra</code> roda revisão profunda na nuvem.</td></tr>
+<tr><td><code>/review [PR]</code></td><td>Revisa um Pull Request do GitHub (mesma engine do <code>/code-review</code>, só leitura).</td></tr>
+<tr><td><code>/simplify [alvo]</code></td><td>(Skill) Revisa o código só para limpeza/simplificação e aplica os ajustes (não caça bugs).</td></tr>
+<tr><td><code>/security-review</code></td><td>Analisa as mudanças pendentes em busca de vulnerabilidades de segurança.</td></tr>
+<tr><td><code>/ultrareview [PR]</code></td><td>Revisão profunda multiagente na nuvem. Prefira <code>/code-review ultra</code> (este é apelido).</td></tr>
+<tr><td><code>/ultraplan &lt;prompt&gt;</code></td><td>Rascunha um plano numa sessão na nuvem, revisa no navegador e executa.</td></tr>
+<tr><td><code>/verify</code></td><td>(Skill) Confirma que a mudança funciona rodando o app de verdade (não só testes).</td></tr>
+<tr><td><code>/run</code></td><td>(Skill) Inicia e dirige o app do projeto para ver a mudança funcionando.</td></tr>
+<tr><td><code>/run-skill-generator</code></td><td>(Skill) Ensina o <code>/run</code> e o <code>/verify</code> a iniciar o app do seu projeto.</td></tr>
+<tr><td><code>/autofix-pr [prompt]</code></td><td>Cria sessão na nuvem que vigia o PR da branch e empurra correções quando o CI falha.</td></tr>
+<tr><td><code>/install-github-app</code></td><td>Configura o app do Claude (GitHub Actions) no repositório.</td></tr>
+</table>
+
+<h3>Entre sessões / continuidade</h3>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>/resume [sessão]</code></td><td>Retoma uma conversa por ID/nome, ou abre o seletor de sessões. Apelido: <code>/continue</code>.</td></tr>
+<tr><td><code>/rename [nome]</code></td><td>Renomeia a sessão atual (mostra o nome na barra).</td></tr>
+<tr><td><code>/rewind</code></td><td>Volta a conversa e/ou o código a um ponto anterior (checkpoints). Apelidos: <code>/checkpoint</code>, <code>/undo</code>.</td></tr>
+<tr><td><code>/cd &lt;caminho&gt;</code></td><td>Move a sessão para um novo diretório de trabalho (preserva o cache).</td></tr>
+<tr><td><code>/add-dir &lt;caminho&gt;</code></td><td>Adiciona um diretório de trabalho para acesso a arquivos na sessão atual.</td></tr>
+<tr><td><code>/teleport</code></td><td>Puxa uma sessão do "Claude Code na web" para este terminal. Apelido: <code>/tp</code>.</td></tr>
+<tr><td><code>/remote-control</code></td><td>Permite controlar esta sessão local a partir do claude.ai. Apelido: <code>/rc</code>.</td></tr>
+<tr><td><code>/desktop</code></td><td>Continua a sessão no app Claude Code Desktop. Apelido: <code>/app</code>.</td></tr>
+<tr><td><code>/remote-env</code></td><td>Escolhe o ambiente padrão para agentes na nuvem.</td></tr>
+</table>
+
+<h3>Conta, ajuda e diagnóstico</h3>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>/help</code></td><td>Mostra a ajuda e a lista de comandos disponíveis.</td></tr>
+<tr><td><code>/login</code></td><td>Entra na sua conta Anthropic.</td></tr>
+<tr><td><code>/logout</code></td><td>Sai da sua conta Anthropic.</td></tr>
+<tr><td><code>/status</code></td><td>Abre o painel de status (versão, modelo, conta, conectividade).</td></tr>
+<tr><td><code>/usage</code></td><td>Mostra custo da sessão, limites do plano e estatísticas. Apelidos: <code>/cost</code>, <code>/stats</code>.</td></tr>
+<tr><td><code>/usage-credits</code></td><td>Configura créditos de uso para continuar quando bater o limite.</td></tr>
+<tr><td><code>/doctor</code></td><td>Diagnostica a saúde da instalação e das configurações (tecle <code>f</code> para o Claude corrigir).</td></tr>
+<tr><td><code>/debug [descrição]</code></td><td>(Skill) Liga o log de depuração e investiga problemas da sessão.</td></tr>
+<tr><td><code>/feedback [relato]</code></td><td>Envia feedback / reporta bug com o contexto da sessão. Apelidos: <code>/bug</code>, <code>/share</code>.</td></tr>
+<tr><td><code>/release-notes</code></td><td>Vê o changelog (novidades) por versão.</td></tr>
+<tr><td><code>/privacy-settings</code></td><td>Vê e ajusta configurações de privacidade (planos Pro/Max).</td></tr>
+<tr><td><code>/upgrade</code></td><td>Abre a página para mudar para um plano superior.</td></tr>
+<tr><td><code>/heapdump</code></td><td>Salva um snapshot de memória no <code>~/Desktop</code> para diagnosticar uso alto de memória.</td></tr>
+</table>
+
+<h3>Skills e workflows agendados</h3>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>/deep-research &lt;pergunta&gt;</code></td><td>(Workflow) Faz buscas na web, cruza fontes e gera um relatório com citações.</td></tr>
+<tr><td><code>/claude-api [migrate|...]</code></td><td>(Skill) Carrega referência da Claude API para a linguagem do seu projeto.</td></tr>
+<tr><td><code>/fewer-permission-prompts</code></td><td>(Skill) Cria uma allowlist no <code>settings.json</code> para reduzir pedidos de permissão.</td></tr>
+<tr><td><code>/schedule [descrição]</code></td><td>Cria/edita/lista <i>routines</i> (tarefas) que rodam na nuvem em horário agendado. Apelido: <code>/routines</code>.</td></tr>
+<tr><td><code>/team-onboarding</code></td><td>Gera um guia de integração para a equipe a partir do seu histórico de uso.</td></tr>
+<tr><td><code>/web-setup</code></td><td>Conecta sua conta GitHub ao "Claude Code na web" usando o <code>gh</code> local.</td></tr>
+</table>
+
+<h3>Extras / interface</h3>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>/tui [default|fullscreen]</code></td><td>Define o renderizador da interface (modo tela cheia sem flicker).</td></tr>
+<tr><td><code>/color [cor]</code></td><td>Muda a cor da barra de prompt da sessão.</td></tr>
+<tr><td><code>/voice [hold|tap|off]</code></td><td>Liga/desliga a ditação por voz (requer conta claude.ai).</td></tr>
+<tr><td><code>/scroll-speed</code></td><td>Ajusta a velocidade de rolagem do mouse (modo tela cheia).</td></tr>
+<tr><td><code>/sandbox</code></td><td>Liga/desliga o modo <i>sandbox</i> (isolamento).</td></tr>
+<tr><td><code>/advisor [modelo|off]</code></td><td>Liga/desliga a ferramenta "conselheira" (consulta um 2º modelo em momentos-chave).</td></tr>
+<tr><td><code>/chrome</code></td><td>Configura a integração "Claude no Chrome".</td></tr>
+<tr><td><code>/powerup</code></td><td>Lições interativas rápidas para descobrir recursos do Claude Code.</td></tr>
+<tr><td><code>/radio</code></td><td>Abre a rádio lo-fi "Claude FM" no navegador.</td></tr>
+<tr><td><code>/mobile</code></td><td>Mostra QR code para baixar o app móvel. Apelidos: <code>/ios</code>, <code>/android</code>.</td></tr>
+<tr><td><code>/passes</code></td><td>Compartilha uma semana grátis de Claude Code com amigos (se elegível).</td></tr>
+<tr><td><code>/stickers</code></td><td>Pede adesivos do Claude Code.</td></tr>
+<tr><td><code>/exit</code></td><td>Sai do Claude Code. Apelido: <code>/quit</code>.</td></tr>
+</table>
+
+<div class="note"><b>Observações:</b> servidores MCP podem expor <i>prompts</i> que aparecem como comandos no formato <code>/mcp__&lt;servidor&gt;__&lt;prompt&gt;</code>. O <code>/vim</code> foi <b>removido</b> na v2.1.92 (use <code>/config</code> → Editor mode). O <code>/pr-comments</code> foi removido na v2.1.91 (peça direto ao Claude para ver os comentários do PR).</div>
+
+<h2>2. Comandos de terminal (CLI) — no PowerShell</h2>
+<table>
+<tr><th>Comando</th><th>O que faz (em português)</th></tr>
+<tr><td><code>claude</code></td><td>Inicia uma sessão interativa.</td></tr>
+<tr><td><code>claude "pergunta"</code></td><td>Inicia a sessão já com um prompt inicial.</td></tr>
+<tr><td><code>claude -p "pergunta"</code></td><td>Modo "print": responde e sai (ideal para scripts).</td></tr>
+<tr><td><code>cat arquivo | claude -p "..."</code></td><td>Processa conteúdo vindo de um <i>pipe</i>.</td></tr>
+<tr><td><code>claude -c</code></td><td>Continua a conversa mais recente do diretório atual.</td></tr>
+<tr><td><code>claude -c -p "..."</code></td><td>Continua a conversa via modo print.</td></tr>
+<tr><td><code>claude -r "sessão" "..."</code></td><td>Retoma uma sessão por ID ou nome.</td></tr>
+<tr><td><code>claude update</code></td><td>Atualiza para a última versão.</td></tr>
+<tr><td><code>claude install [versão]</code></td><td>Instala/reinstala o binário nativo (ex.: <code>stable</code>, <code>latest</code> ou <code>2.1.118</code>).</td></tr>
+<tr><td><code>claude auth login</code></td><td>Entra na conta Anthropic (<code>--console</code> para faturar via API; <code>--sso</code> para SSO).</td></tr>
+<tr><td><code>claude auth logout</code></td><td>Sai da conta Anthropic.</td></tr>
+<tr><td><code>claude auth status</code></td><td>Mostra o status de autenticação (JSON; <code>--text</code> para legível).</td></tr>
+<tr><td><code>claude agents</code></td><td>Abre a "agent view" para monitorar/disparar sessões em segundo plano.</td></tr>
+<tr><td><code>claude attach &lt;id&gt;</code></td><td>Conecta-se a uma sessão em segundo plano neste terminal.</td></tr>
+<tr><td><code>claude logs &lt;id&gt;</code></td><td>Mostra a saída recente de uma sessão em segundo plano.</td></tr>
+<tr><td><code>claude respawn &lt;id&gt;</code></td><td>Reinicia uma sessão em segundo plano mantendo a conversa.</td></tr>
+<tr><td><code>claude stop &lt;id&gt;</code></td><td>Para uma sessão em segundo plano (também <code>claude kill</code>).</td></tr>
+<tr><td><code>claude rm &lt;id&gt;</code></td><td>Remove uma sessão em segundo plano da lista (transcrição fica salva).</td></tr>
+<tr><td><code>claude mcp</code></td><td>Configura servidores MCP.</td></tr>
+<tr><td><code>claude mcp login &lt;nome&gt;</code></td><td>Faz o fluxo OAuth de um servidor MCP pela linha de comando.</td></tr>
+<tr><td><code>claude mcp logout &lt;nome&gt;</code></td><td>Limpa as credenciais OAuth de um servidor MCP.</td></tr>
+<tr><td><code>claude config</code></td><td>Gerencia configurações pela linha de comando.</td></tr>
+<tr><td><code>claude plugin</code></td><td>Gerencia plugins (apelido: <code>claude plugins</code>).</td></tr>
+<tr><td><code>claude project purge [caminho]</code></td><td>Apaga o estado local do projeto (transcrições, logs, histórico...).</td></tr>
+<tr><td><code>claude remote-control</code></td><td>Inicia um servidor de Controle Remoto (controlar via claude.ai/app).</td></tr>
+<tr><td><code>claude setup-token</code></td><td>Gera um token OAuth de longa duração para CI e scripts.</td></tr>
+<tr><td><code>claude auto-mode defaults</code></td><td>Imprime as regras do classificador do "auto mode" (JSON).</td></tr>
+<tr><td><code>claude daemon status</code></td><td>Mostra o estado do supervisor de sessões em segundo plano.</td></tr>
+<tr><td><code>claude daemon stop --any</code></td><td>Para o supervisor de sessões em segundo plano.</td></tr>
+<tr><td><code>claude ultrareview [alvo]</code></td><td>Roda a ultrarrevisão de forma não-interativa (imprime os achados).</td></tr>
+<tr><td><code>claude --version</code> (<code>-v</code>)</td><td>Mostra o número da versão.</td></tr>
+<tr><td><code>claude --help</code> (<code>-h</code>)</td><td>Mostra a ajuda.</td></tr>
+</table>
+<div class="note">Se você digitar errado, o Claude Code sugere o mais próximo. Ex.: <code>claude udpate</code> → "Did you mean claude update?".</div>
+
+<h2>3. Flags (opções) da linha de comando</h2>
+<p style="font-size:10px">As mais úteis. (<code>claude --help</code> não lista todas — a ausência ali não significa indisponível.)</p>
+
+<h3>Modelo e raciocínio</h3>
+<table>
+<tr><th>Flag</th><th>O que faz</th></tr>
+<tr><td><code>--model &lt;modelo&gt;</code></td><td>Define o modelo da sessão (<code>sonnet</code>, <code>opus</code>, <code>haiku</code>, <code>fable</code> ou ID completo).</td></tr>
+<tr><td><code>--fallback-model &lt;lista&gt;</code></td><td>Modelo(s) reserva quando o principal está sobrecarregado/indisponível.</td></tr>
+<tr><td><code>--effort &lt;nível&gt;</code></td><td>Nível de esforço: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>.</td></tr>
+<tr><td><code>--advisor &lt;modelo&gt;</code></td><td>Liga a ferramenta conselheira (<code>opus</code>, <code>sonnet</code>, <code>fable</code>...).</td></tr>
+</table>
+
+<h3>Modo "print" / automação (scripts)</h3>
+<table>
+<tr><th>Flag</th><th>O que faz</th></tr>
+<tr><td><code>--print</code>, <code>-p</code></td><td>Imprime a resposta sem modo interativo.</td></tr>
+<tr><td><code>--output-format &lt;fmt&gt;</code></td><td>Formato de saída: <code>text</code>, <code>json</code>, <code>stream-json</code>.</td></tr>
+<tr><td><code>--input-format &lt;fmt&gt;</code></td><td>Formato de entrada: <code>text</code>, <code>stream-json</code>.</td></tr>
+<tr><td><code>--json-schema '&lt;schema&gt;'</code></td><td>Saída validada conforme um JSON Schema (modo print).</td></tr>
+<tr><td><code>--max-turns &lt;n&gt;</code></td><td>Limita o número de turnos (modo print).</td></tr>
+<tr><td><code>--max-budget-usd &lt;valor&gt;</code></td><td>Teto de gasto em dólares antes de parar (modo print).</td></tr>
+<tr><td><code>--bare</code></td><td>Modo mínimo: pula descoberta de hooks/skills/plugins/MCP/CLAUDE.md (mais rápido).</td></tr>
+<tr><td><code>--verbose</code></td><td>Log detalhado, turno a turno.</td></tr>
+</table>
+
+<h3>Permissões e ferramentas</h3>
+<table>
+<tr><th>Flag</th><th>O que faz</th></tr>
+<tr><td><code>--permission-mode &lt;modo&gt;</code></td><td>Inicia em um modo: <code>default</code>, <code>acceptEdits</code>, <code>plan</code>, <code>auto</code>, <code>dontAsk</code>, <code>bypassPermissions</code>.</td></tr>
+<tr><td><code>--dangerously-skip-permissions</code></td><td><span class="warn">⚠️ Pula todos os pedidos de permissão.</span> Use com muito cuidado.</td></tr>
+<tr><td><code>--allow-dangerously-skip-permissions</code></td><td>Adiciona o <code>bypassPermissions</code> ao ciclo do Shift+Tab sem iniciar nele.</td></tr>
+<tr><td><code>--allowedTools "..."</code></td><td>Ferramentas que executam sem pedir permissão.</td></tr>
+<tr><td><code>--disallowedTools "..."</code></td><td>Regras de negação de ferramentas.</td></tr>
+<tr><td><code>--tools "Bash,Edit,Read"</code></td><td>Restringe quais ferramentas embutidas o Claude pode usar.</td></tr>
+</table>
+
+<h3>Diretórios, sessão e contexto</h3>
+<table>
+<tr><th>Flag</th><th>O que faz</th></tr>
+<tr><td><code>--add-dir &lt;caminho&gt;</code></td><td>Adiciona diretórios de trabalho.</td></tr>
+<tr><td><code>--resume &lt;id&gt;</code>, <code>-r</code></td><td>Retoma uma sessão específica (ou abre o seletor).</td></tr>
+<tr><td><code>--continue</code>, <code>-c</code></td><td>Carrega a conversa mais recente do diretório.</td></tr>
+<tr><td><code>--fork-session</code></td><td>Ao retomar, cria um novo ID em vez de reutilizar o original.</td></tr>
+<tr><td><code>--session-id &lt;uuid&gt;</code></td><td>Usa um ID de sessão específico.</td></tr>
+<tr><td><code>--name &lt;nome&gt;</code>, <code>-n</code></td><td>Define um nome de exibição para a sessão.</td></tr>
+<tr><td><code>--worktree &lt;nome&gt;</code>, <code>-w</code></td><td>Inicia em um <i>git worktree</i> isolado.</td></tr>
+<tr><td><code>--ide</code></td><td>Conecta automaticamente à IDE no início.</td></tr>
+<tr><td><code>--chrome</code> / <code>--no-chrome</code></td><td>Liga/desliga a integração com o Chrome.</td></tr>
+</table>
+
+<h3>MCP, plugins e prompt do sistema</h3>
+<table>
+<tr><th>Flag</th><th>O que faz</th></tr>
+<tr><td><code>--mcp-config &lt;arquivo&gt;</code></td><td>Carrega servidores MCP de arquivos/strings JSON.</td></tr>
+<tr><td><code>--strict-mcp-config</code></td><td>Usa só os servidores MCP do <code>--mcp-config</code>.</td></tr>
+<tr><td><code>--plugin-dir &lt;caminho&gt;</code></td><td>Carrega um plugin de uma pasta/<code>.zip</code> só nesta sessão.</td></tr>
+<tr><td><code>--settings &lt;arquivo&gt;</code></td><td>Caminho (ou JSON) de configurações que sobrescrevem o <code>settings.json</code>.</td></tr>
+<tr><td><code>--system-prompt "..."</code></td><td>Substitui todo o prompt do sistema.</td></tr>
+<tr><td><code>--append-system-prompt "..."</code></td><td>Acrescenta texto ao final do prompt do sistema padrão.</td></tr>
+<tr><td><code>--safe-mode</code></td><td>Inicia com todas as customizações desativadas (para diagnosticar).</td></tr>
+<tr><td><code>--debug "api,mcp"</code></td><td>Liga o modo de depuração com filtro de categorias.</td></tr>
+</table>
+
+<h2>4. Atalhos de teclado</h2>
+
+<h3>Controles gerais</h3>
+<table>
+<tr><th>Atalho</th><th>O que faz</th></tr>
+<tr><td><code>Esc</code></td><td>Interrompe o Claude no meio do turno (mantém o trabalho feito).</td></tr>
+<tr><td><code>Esc</code> <code>Esc</code></td><td>Com texto digitado: limpa e salva no histórico. Vazio: abre o menu de <i>rewind</i> (checkpoints).</td></tr>
+<tr><td><code>Ctrl+C</code></td><td>Interrompe a operação; ou limpa a entrada; de novo (vazio) sai do Claude Code.</td></tr>
+<tr><td><code>Ctrl+D</code></td><td>Sai da sessão do Claude Code (sinal EOF).</td></tr>
+<tr><td><code>Ctrl+L</code></td><td>Redesenha a tela (recupera display embaralhado).</td></tr>
+<tr><td><code>Ctrl+O</code></td><td>Liga/desliga o visualizador de transcrição (detalhes de ferramentas).</td></tr>
+<tr><td><code>Ctrl+R</code></td><td>Busca reversa no histórico de comandos.</td></tr>
+<tr><td><code>Ctrl+B</code></td><td>Joga a tarefa/comando atual para segundo plano (tmux: duas vezes).</td></tr>
+<tr><td><code>Ctrl+T</code></td><td>Liga/desliga a lista de tarefas.</td></tr>
+<tr><td><code>Ctrl+G</code> ou <code>Ctrl+X Ctrl+E</code></td><td>Abre o prompt no seu editor de texto padrão.</td></tr>
+<tr><td><code>Ctrl+V</code> / <code>Alt+V</code> (Win/WSL)</td><td>Cola imagem da área de transferência (insere chip <code>[Image #N]</code>).</td></tr>
+<tr><td><code>Ctrl+X Ctrl+K</code></td><td>Para todos os subagentes em segundo plano (duas vezes em 3s para confirmar).</td></tr>
+<tr><td><code>Shift+Tab</code> (ou <code>Alt+M</code>)</td><td>Alterna os modos de permissão (<code>default</code>, <code>acceptEdits</code>, <code>plan</code>, <code>auto</code>...).</td></tr>
+<tr><td><code>Alt+P</code> (Win/Linux)</td><td>Troca o modelo sem limpar o prompt.</td></tr>
+<tr><td><code>Alt+T</code> (Win/Linux)</td><td>Liga/desliga o <i>extended thinking</i> (raciocínio estendido).</td></tr>
+<tr><td><code>Alt+O</code> (Win/Linux)</td><td>Liga/desliga o <b>modo rápido</b>.</td></tr>
+<tr><td><code>↑</code> / <code>↓</code> (ou <code>Ctrl+P</code>/<code>Ctrl+N</code>)</td><td>Move o cursor; nas bordas, navega o histórico de comandos.</td></tr>
+<tr><td><code>←</code> / <code>→</code></td><td>Navega entre abas de diálogos/menus.</td></tr>
+</table>
+
+<h3>Edição de texto</h3>
+<table>
+<tr><th>Atalho</th><th>O que faz</th></tr>
+<tr><td><code>Ctrl+A</code></td><td>Vai para o início da linha.</td></tr>
+<tr><td><code>Ctrl+E</code></td><td>Vai para o fim da linha.</td></tr>
+<tr><td><code>Ctrl+K</code></td><td>Apaga até o fim da linha (guarda para colar).</td></tr>
+<tr><td><code>Ctrl+U</code></td><td>Apaga do cursor até o início da linha (guarda para colar).</td></tr>
+<tr><td><code>Ctrl+W</code></td><td>Apaga a palavra anterior (no Windows, <code>Ctrl+Backspace</code> também).</td></tr>
+<tr><td><code>Ctrl+Y</code></td><td>Cola o texto apagado com <code>Ctrl+K/U/W</code>.</td></tr>
+<tr><td><code>Alt+B</code> / <code>Alt+F</code></td><td>Move o cursor uma palavra para trás / para frente.</td></tr>
+</table>
+
+<h3>Nova linha (entrada multilinha)</h3>
+<table>
+<tr><th>Atalho</th><th>Contexto</th></tr>
+<tr><td><code>\</code> + <code>Enter</code></td><td>Funciona em qualquer terminal.</td></tr>
+<tr><td><code>Ctrl+J</code></td><td>Funciona em qualquer terminal, sem configurar.</td></tr>
+<tr><td><code>Shift+Enter</code></td><td>Nativo em alguns terminais; nos demais (VS Code, Cursor...) rode <code>/terminal-setup</code>.</td></tr>
+</table>
+
+<h2>5. Modos especiais e prefixos</h2>
+<table>
+<tr><th>Prefixo / tecla</th><th>O que faz</th></tr>
+<tr><td><code>/</code> (no início)</td><td>Executa um comando ou skill.</td></tr>
+<tr><td><code>!</code> (no início)</td><td><b>Modo shell:</b> roda um comando direto, adiciona a saída ao contexto e o Claude responde a ela. Ex.: <code>! npm test</code>, <code>! git status</code>.</td></tr>
+<tr><td><code>@</code></td><td><b>Menção de arquivo:</b> dispara o autocompletar de caminhos para referenciar no prompt.</td></tr>
+<tr><td>Colar imagem</td><td><code>Ctrl+V</code>/<code>Alt+V</code> insere a imagem para você referenciar no texto.</td></tr>
+</table>
+<div class="note">O modo shell (<code>!</code>) sai com <code>Esc</code>, <code>Backspace</code> ou <code>Ctrl+U</code> no prompt vazio, e aceita autocompletar com <code>Tab</code> a partir de comandos <code>!</code> anteriores do projeto.</div>
+
+<h2>6. Modo Vim (edição estilo Vim)</h2>
+<p style="font-size:10px">Ative em <code>/config</code> → <b>Editor mode</b>. Principais comandos no modo NORMAL:</p>
+<ul>
+<li><b>Trocar de modo:</b> <code>Esc</code> (NORMAL), <code>i</code>/<code>I</code> (inserir antes/início), <code>a</code>/<code>A</code> (inserir depois/fim), <code>o</code>/<code>O</code> (abrir linha abaixo/acima), <code>v</code>/<code>V</code> (seleção visual).</li>
+<li><b>Navegar:</b> <code>h j k l</code> (←↓↑→), <code>w</code> (próxima palavra), <code>e</code> (fim da palavra), <code>b</code> (palavra anterior), <code>0</code> (início), <code>$</code> (fim), <code>^</code> (1º não-branco), <code>gg</code>/<code>G</code> (início/fim), <code>f{c}</code>/<code>F{c}</code> (pular para caractere).</li>
+<li><b>Editar:</b> <code>x</code> (apaga caractere), <code>dd</code> (apaga linha), <code>D</code> (apaga até o fim), <code>dw/cw/yw</code> (apagar/mudar/copiar palavra), <code>cc</code> (muda linha), <code>yy</code>/<code>Y</code> (copia linha), <code>p</code>/<code>P</code> (cola depois/antes), <code>u</code> (desfaz), <code>.</code> (repete), <code>&gt;&gt;</code>/<code>&lt;&lt;</code> (indenta/desindenta).</li>
+<li><b>Objetos de texto</b> (com <code>d</code>, <code>c</code>, <code>y</code>): <code>iw</code>/<code>aw</code> (palavra), <code>i"</code>/<code>a"</code> (aspas), <code>i(</code>/<code>a(</code> (parênteses), <code>i{</code>/<code>a{</code> (chaves), etc.</li>
+</ul>
+
+<h2>7. "O que isso significa pra mim" — guia rápido do dia a dia</h2>
+<p style="font-size:10px">Tradução prática dos comandos que mais valem a pena no uso comum:</p>
+<ul>
+<li><b>Conversa ficou enorme e lenta?</b> <code>/compact</code> resume e libera espaço <b>mantendo</b> a conversa; <code>/clear</code> começa <b>do zero</b> (mantém só a memória do projeto) — use ao trocar de assunto; <code>/context</code> mostra para onde está indo a memória.</li>
+<li><b>Quer ver quanto está gastando?</b> <code>/usage</code> (ou <code>/cost</code>) mostra custo e limites do plano.</li>
+<li><b>Fechou o Claude e quer voltar de onde parou?</b> <code>claude -c</code> (no terminal) ou <code>/resume</code> (dentro). Para nomear sessões: <code>claude -n "meu-trabalho"</code>.</li>
+<li><b>Errou e quer desfazer mudanças no código/conversa?</b> <code>/rewind</code> volta a um ponto anterior (checkpoint). É a sua "rede de segurança".</li>
+<li><b>Quer planejar antes de o Claude mexer em tudo?</b> <code>/plan</code> (ou <code>Shift+Tab</code> até o modo <i>plan</i>). Ele propõe e só executa após sua aprovação.</li>
+<li><b>Algo parou de funcionar?</b> <code>/doctor</code> diagnostica a instalação; <code>/status</code> mostra versão, modelo e conexão.</li>
+<li><b>Rodar um comando do sistema rápido sem sair da conversa?</b> Use <code>!</code> na frente. Ex.: <code>! ipconfig</code>.</li>
+<li><b>Apontar um arquivo específico para o Claude olhar?</b> Digite <code>@</code> e comece a escrever o caminho.</li>
+<li><b>Trocar o "capricho" da resposta:</b> <code>/model</code> (troca o modelo) e <code>/effort</code> (quão fundo ele pensa). <code>/fast</code> deixa o Opus mais ágil.</li>
+<li><b>Acabar a tarefa:</b> <code>/exit</code> (ou <code>Ctrl+D</code>) para sair.</li>
+</ul>
+
+<footer>Gerado pelo Claude Code (engenheiro de informática pessoal do Edney) a partir da documentação oficial em code.claude.com/docs. Para a referência sempre atualizada, use <code>/help</code> dentro do Claude Code ou <code>claude --help</code> no terminal.</footer>
+
+</body>
+</html>

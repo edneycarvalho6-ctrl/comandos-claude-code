@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comandos do Claude Code — Guia Completo</title>
+<style>
+:root{
+  --accent:#b8442b; --accent-2:#e06a44; --accent-soft:#fbe9e3;
+  --bg:#f6f4f1; --panel:#ffffff; --ink:#222; --muted:#6b6b6b;
+  --border:#e3ddd6; --code-bg:#f1ece6; --code-ink:#9a3412;
+  --row:#faf8f6; --rowhover:#fdf3ee; --sidebar:#2a2622; --sidebar-ink:#e8e2db;
+  --sidebar-muted:#a39a90; --shadow:0 1px 3px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.05);
+}
+html[data-theme="dark"]{
+  --bg:#16130f; --panel:#211d18; --ink:#ece6df; --muted:#9c948a;
+  --border:#332d26; --code-bg:#2a2520; --code-ink:#f0a878;
+  --row:#1d1914; --rowhover:#2a231c; --accent-soft:#2e201a;
+  --sidebar:#100d0a; --sidebar-ink:#e8e2db; --sidebar-muted:#8a8178;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+code,.mono{font-family:"Cascadia Code","Consolas","SF Mono",ui-monospace,monospace}
+
+/* ---------- TOPBAR ---------- */
+.topbar{
+  position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:18px;
+  padding:12px 22px; background:var(--accent);
+  color:#fff; box-shadow:0 2px 12px rgba(0,0,0,.18);
+}
+.brand{display:flex; align-items:center; gap:12px; font-weight:700; font-size:1.05rem; white-space:nowrap}
+.brand .logo{
+  width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.16);
+  display:grid;place-items:center;font-size:1.2rem;font-weight:800;
+}
+.brand .badge{
+  font-size:.7rem;font-weight:700;background:rgba(0,0,0,.22);
+  padding:3px 8px;border-radius:20px;letter-spacing:.4px;
+}
+.search-wrap{flex:1; max-width:520px; position:relative}
+#search{
+  width:100%; padding:9px 14px 9px 38px; border:none; border-radius:24px;
+  font-size:.95rem; background:rgba(255,255,255,.95); color:#222; outline:none;
+  box-shadow:inset 0 0 0 2px transparent;
+}
+#search:focus{box-shadow:inset 0 0 0 2px var(--accent-2)}
+.search-wrap::before{
+  content:"🔎"; position:absolute; left:13px; top:50%; transform:translateY(-50%);
+  font-size:.9rem; opacity:.6;
+}
+.topbar .spacer{flex:1}
+.btn{
+  border:none; cursor:pointer; font-size:.9rem; font-weight:600;
+  padding:8px 14px; border-radius:22px; background:rgba(255,255,255,.16);
+  color:#fff; transition:background .15s; white-space:nowrap;
+}
+.btn:hover{background:rgba(255,255,255,.28)}
+.menu-toggle{display:none}
+
+/* ---------- LAYOUT ---------- */
+.layout{display:flex; min-height:calc(100vh - 60px)}
+.sidebar{
+  width:290px; flex-shrink:0; background:var(--sidebar); color:var(--sidebar-ink);
+  padding:18px 0 40px; overflow-y:auto; position:sticky; top:60px;
+  height:calc(100vh - 60px);
+}
+.nav-group{padding:6px 0}
+.nav-group h4{
+  margin:14px 22px 6px; font-size:.7rem; letter-spacing:1.2px; text-transform:uppercase;
+  color:var(--sidebar-muted); font-weight:700;
+}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:9px 22px; cursor:pointer;
+  font-size:.9rem; color:var(--sidebar-ink); border-left:3px solid transparent;
+  transition:background .12s,border-color .12s;
+}
+.nav-item:hover{background:rgba(255,255,255,.05)}
+.nav-item.active{
+  background:rgba(184,68,43,.22); border-left-color:var(--accent-2);
+  color:#fff; font-weight:600;
+}
+.nav-item .ic{width:20px;text-align:center;opacity:.85}
+
+.main{flex:1; padding:34px 46px 70px; max-width:1080px; min-width:0}
+.section{display:none; animation:fade .25s ease}
+.section.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+h1.title{font-size:1.9rem; margin:0 0 4px; letter-spacing:-.5px}
+.subtitle{color:var(--muted); margin:0 0 26px; font-size:1rem}
+.section h2{
+  font-size:1.5rem; margin:0 0 6px; display:flex; align-items:center; gap:12px;
+  letter-spacing:-.3px;
+}
+.section h2 .ic{font-size:1.4rem}
+.section .lead{color:var(--muted); margin:0 0 22px; font-size:.98rem}
+.section h3{
+  font-size:1.05rem; margin:30px 0 10px; color:var(--accent);
+  border-bottom:2px solid var(--accent-soft); padding-bottom:5px;
+}
+
+/* ---------- TABLES ---------- */
+table{width:100%; border-collapse:collapse; margin:6px 0 10px; background:var(--panel);
+  border-radius:12px; overflow:hidden; box-shadow:var(--shadow); font-size:.93rem}
+thead th{
+  background:var(--accent); color:#fff; text-align:left; padding:11px 16px;
+  font-size:.82rem; letter-spacing:.4px; text-transform:uppercase; font-weight:700;
+}
+tbody td{padding:11px 16px; border-top:1px solid var(--border); vertical-align:top}
+tbody tr{background:var(--panel)}
+tbody tr:nth-child(even){background:var(--row)}
+tbody tr:hover{background:var(--rowhover)}
+td:first-child{white-space:nowrap; width:1%}
+code{
+  background:var(--code-bg); color:var(--code-ink); padding:2px 7px;
+  border-radius:6px; font-size:.86em; font-weight:600; white-space:nowrap;
+}
+td:nth-child(2) code{white-space:normal}
+
+/* ---------- CARDS / NOTES ---------- */
+.note{
+  background:var(--accent-soft); border:1px solid var(--border);
+  border-left:4px solid var(--accent); border-radius:10px;
+  padding:14px 18px; margin:18px 0; font-size:.93rem;
+}
+.note b{color:var(--accent)}
+.note ul{margin:8px 0 0; padding-left:20px}
+.note li{margin:4px 0}
+.warn{border-left-color:#c2410c; background:#fff4ec}
+html[data-theme="dark"] .warn{background:#2a1c12}
+
+.cards{display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); margin-top:8px}
+.card{
+  background:var(--panel); border:1px solid var(--border); border-radius:12px;
+  padding:16px 18px; box-shadow:var(--shadow);
+}
+.card h4{margin:0 0 6px; font-size:1rem; color:var(--accent)}
+.card p{margin:0; font-size:.92rem; color:var(--ink)}
+.card p+p{margin-top:8px}
+
+.vim-block{background:var(--panel); border:1px solid var(--border); border-radius:12px;
+  padding:16px 20px; margin:12px 0; box-shadow:var(--shadow); font-size:.94rem}
+.vim-block b{color:var(--accent)}
+
+/* clique-para-copiar nos comandos */
+td:first-child{cursor:pointer}
+td:first-child code{cursor:pointer; transition:background .12s,box-shadow .12s; position:relative}
+td:first-child code:hover{background:var(--accent); color:#fff; box-shadow:0 0 0 2px var(--accent-2)}
+td:first-child code:active{transform:translateY(1px)}
+td:first-child::after{content:"⧉"; opacity:0; margin-left:6px; color:var(--muted); font-size:.85em; transition:opacity .12s}
+td:first-child:hover::after{opacity:.7}
+#toast{
+  position:fixed; left:50%; bottom:30px; transform:translateX(-50%) translateY(20px);
+  background:#1f7a3d; color:#fff; padding:11px 20px; border-radius:24px; font-size:.92rem;
+  font-weight:600; box-shadow:0 6px 24px rgba(0,0,0,.25); opacity:0; pointer-events:none;
+  transition:opacity .2s,transform .2s; z-index:100; max-width:90vw;
+}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+#toast code{background:rgba(255,255,255,.2); color:#fff; font-weight:700}
+.no-results{display:none; text-align:center; padding:60px 20px; color:var(--muted)}
+.no-results.show{display:block}
+.hl{background:#ffe58a; color:#222; border-radius:3px; padding:0 1px}
+html[data-theme="dark"] .hl{background:#7a5a12; color:#fff}
+
+footer{
+  border-top:1px solid var(--border); margin:50px -46px -70px; padding:24px 46px 40px;
+  color:var(--muted); font-size:.85rem; background:var(--panel);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:860px){
+  .menu-toggle{display:inline-flex}
+  .sidebar{position:fixed; left:-300px; top:60px; transition:left .25s; z-index:40; box-shadow:6px 0 24px rgba(0,0,0,.3)}
+  .sidebar.open{left:0}
+  .main{padding:24px 18px 60px}
+  footer{margin:40px -18px -60px; padding:20px 18px}
+  .brand .badge{display:none}
+}
+/* ---------- PRINT ---------- */
+@media print{
+  .topbar,.sidebar,.menu-toggle{display:none!important}
+  .section{display:block!important; page-break-after:always}
+  .main{max-width:none;padding:0}
+  body{background:#fff}
+  table{box-shadow:none;border:1px solid #ccc}
+  thead th{background:#b8442b!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="btn menu-toggle" id="menuBtn" aria-label="Menu">☰</button>
+  <div class="brand">
+    <span class="logo">⌘</span>
+    <span>Comandos do Claude Code</span>
+    <span class="badge">v2.1.x</span>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="search" placeholder="Buscar comando, atalho ou flag…" autocomplete="off" aria-label="Buscar">
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="printBtn" title="Imprimir ou salvar como PDF">🖨️ Imprimir</button>
+  <button class="btn" id="themeBtn" title="Alternar tema">🌙 Tema</button>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-group">
+      <h4>Comandos de barra (/)</h4>
+      <div class="nav-item" data-target="s-config"><span class="ic">⚙️</span>Configuração e início</div>
+      <div class="nav-item" data-target="s-durante"><span class="ic">⏱️</span>Durante a tarefa</div>
+      <div class="nav-item" data-target="s-paralelo"><span class="ic">🔀</span>Paralelo e segundo plano</div>
+      <div class="nav-item" data-target="s-revisao"><span class="ic">✅</span>Antes de entregar (revisão)</div>
+      <div class="nav-item" data-target="s-sessoes"><span class="ic">🔁</span>Entre sessões / continuidade</div>
+      <div class="nav-item" data-target="s-conta"><span class="ic">🩺</span>Conta, ajuda e diagnóstico</div>
+      <div class="nav-item" data-target="s-skills"><span class="ic">🧩</span>Skills e workflows agendados</div>
+      <div class="nav-item" data-target="s-extras"><span class="ic">✨</span>Extras / interface</div>
+      <div class="nav-item" data-target="s-github"><span class="ic">🐙</span>Salvar no GitHub</div>
+      <div class="nav-item" data-target="s-vercel"><span class="ic">▲</span>Deploy no Vercel</div>
+      <div class="nav-item" data-target="s-lovable"><span class="ic">💜</span>Deploy no Lovable</div>
+    </div>
+    <div class="nav-group">
+      <h4>Terminal (CLI)</h4>
+      <div class="nav-item" data-target="s-cli"><span class="ic">⌨️</span>Comandos no PowerShell</div>
+      <div class="nav-item" data-target="s-flags"><span class="ic">🚩</span>Flags da linha de comando</div>
+    </div>
+    <div class="nav-group">
+      <h4>Atalhos & modos</h4>
+      <div class="nav-item" data-target="s-atalhos"><span class="ic">🎹</span>Atalhos de teclado</div>
+      <div class="nav-item" data-target="s-prefixos"><span class="ic">❗</span>Modos especiais e prefixos</div>
+      <div class="nav-item" data-target="s-vim"><span class="ic">📝</span>Modo Vim</div>
+    </div>
+    <div class="nav-group">
+      <h4>Guia</h4>
+      <div class="nav-item" data-target="s-guia"><span class="ic">💡</span>O que isso significa pra mim</div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <h1 class="title">Guia Completo dos Comandos do Claude Code</h1>
+    <p class="subtitle">Referência em português de <b>todos os comandos</b>: barra (<code>/</code>), terminal (<code>claude …</code>), atalhos de teclado e modos especiais. Baseado na documentação oficial (v2.1.x).</p>
+    <div class="note" style="margin:0 0 26px">💡 <b>Dica:</b> clique em qualquer <b>comando</b> (1ª coluna das tabelas) para <b>copiá-lo</b>. Depois cole com <code>Ctrl+V</code> no Claude Code — no Terminal, no VSCode ou no navegador, onde você estiver trabalhando.</div>
+
+    <!-- ===== 1. CONFIG ===== -->
+    <section class="section" id="s-config">
+      <h2><span class="ic">⚙️</span>Configuração e início de projeto</h2>
+      <p class="lead">Comandos digitados no início da mensagem, dentro do Claude Code. <code>&lt;arg&gt;</code> = obrigatório · <code>[arg]</code> = opcional.</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/init</code></td><td>Cria um arquivo <code>CLAUDE.md</code> inicial documentando o seu projeto (guia para o Claude).</td></tr>
+        <tr><td><code>/memory</code></td><td>Edita os arquivos de memória <code>CLAUDE.md</code>; liga/desliga a memória automática e mostra suas entradas.</td></tr>
+        <tr><td><code>/config [chave=valor]</code></td><td>Abre as configurações (tema, modelo, estilo de saída…). Pode setar direto, ex.: <code>/config theme=dark</code>. Apelido: <code>/settings</code>.</td></tr>
+        <tr><td><code>/permissions</code></td><td>Gerencia regras de permissão (permitir / perguntar / negar) das ferramentas. Apelido: <code>/allowed-tools</code>.</td></tr>
+        <tr><td><code>/agents</code></td><td>Cria e gerencia subagentes de IA (delegação de tarefas).</td></tr>
+        <tr><td><code>/mcp</code></td><td>Gerencia conexões com servidores MCP e autenticação OAuth.</td></tr>
+        <tr><td><code>/hooks</code></td><td>Vê e configura os <i>hooks</i> (ganchos) que disparam em eventos de ferramentas.</td></tr>
+        <tr><td><code>/skills</code></td><td>Lista as <i>skills</i> (habilidades) disponíveis; permite ocultar alguma.</td></tr>
+        <tr><td><code>/plugin [subcomando]</code></td><td>Gerencia plugins (<code>list</code>, <code>install</code>, <code>enable</code>, <code>disable</code>…).</td></tr>
+        <tr><td><code>/reload-plugins [--force]</code></td><td>Recarrega plugins sem reiniciar.</td></tr>
+        <tr><td><code>/reload-skills</code></td><td>Re-escaneia skills/comandos adicionados durante a sessão.</td></tr>
+        <tr><td><code>/statusline</code></td><td>Configura a barra de status do Claude Code.</td></tr>
+        <tr><td><code>/keybindings</code></td><td>Abre o arquivo de atalhos de teclado para personalizar.</td></tr>
+        <tr><td><code>/theme</code></td><td>Muda o tema de cores (claro, escuro, automático, daltônico…).</td></tr>
+        <tr><td><code>/terminal-setup</code></td><td>Configura o atalho <b>Shift+Enter</b> (nova linha) no seu terminal (VS Code, Cursor etc.).</td></tr>
+        <tr><td><code>/ide</code></td><td>Gerencia a integração com a IDE e mostra o status.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== 2. DURANTE ===== -->
+    <section class="section" id="s-durante">
+      <h2><span class="ic">⏱️</span>Durante a tarefa</h2>
+      <p class="lead">Comandos do dia a dia enquanto o Claude trabalha.</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/plan [descrição]</code></td><td>Entra no <b>modo de planejamento</b> (planeja antes de executar). Ex.: <code>/plan corrigir o bug de login</code>.</td></tr>
+        <tr><td><code>/model [modelo]</code></td><td>Troca o modelo de IA (Opus, Sonnet, Haiku, Fable) e salva como padrão.</td></tr>
+        <tr><td><code>/effort [nível]</code></td><td>Ajusta o "esforço" de raciocínio: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>, <code>ultracode</code>.</td></tr>
+        <tr><td><code>/fast [on|off]</code></td><td>Liga/desliga o <b>modo rápido</b> (mesmo Opus, com saída mais veloz).</td></tr>
+        <tr><td><code>/context [all]</code></td><td>Mostra o uso do contexto (janela) num grid colorido, com dicas de otimização.</td></tr>
+        <tr><td><code>/compact [instruções]</code></td><td>Resume a conversa para liberar contexto. Pode focar o resumo em algo.</td></tr>
+        <tr><td><code>/clear [nome]</code></td><td>Começa uma conversa nova com contexto vazio (mantém a memória do projeto). Apelidos: <code>/reset</code>, <code>/new</code>.</td></tr>
+        <tr><td><code>/btw &lt;pergunta&gt;</code></td><td>Pergunta rápida "a propósito" sem poluir o histórico da conversa.</td></tr>
+        <tr><td><code>/goal [condição]</code></td><td>Define uma meta: o Claude continua trabalhando entre turnos até cumprir.</td></tr>
+        <tr><td><code>/recap</code></td><td>Gera um resumo de uma linha do que aconteceu na sessão.</td></tr>
+        <tr><td><code>/copy [N]</code></td><td>Copia a última resposta do Claude (ou a N-ésima) para a área de transferência.</td></tr>
+        <tr><td><code>/export [arquivo]</code></td><td>Exporta a conversa como texto (arquivo ou área de transferência).</td></tr>
+        <tr><td><code>/diff</code></td><td>Abre um visualizador interativo das mudanças não commitadas e por turno.</td></tr>
+        <tr><td><code>/focus</code></td><td>Mostra só o essencial (seu último prompt + resumo das ações + resposta final).</td></tr>
+        <tr><td><code>/insights</code></td><td>Gera um relatório analisando suas sessões (padrões, pontos de atrito).</td></tr>
+      </tbody></table>
+      <div class="note">
+        <b>Nota: <code>/plan</code> × <code>Shift+Tab</code> × <code>/ultraplan</code> — as três formas de planejar.</b>
+        Todas levam ao <b>modo de planejamento</b> (o Claude propõe um plano e só executa após sua aprovação). A diferença é só <i>como</i> você entra nele:
+        <ul>
+          <li><code>/plan [descrição]</code> — comando que entra no modo já com a tarefa. Ex.: <code>/plan corrigir o bug de login</code>.</li>
+          <li><code>Shift+Tab</code> — atalho de teclado que alterna para o modo de planejamento (sem digitar).</li>
+          <li><code>/ultraplan &lt;prompt&gt;</code> — o "primo grande": rascunha o plano numa sessão <b>na nuvem</b>, você revisa no navegador e manda executar. Para tarefas maiores.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== 3. PARALELO ===== -->
+    <section class="section" id="s-paralelo">
+      <h2><span class="ic">🔀</span>Trabalho em paralelo e em segundo plano</h2>
+      <p class="lead">Para rodar tarefas em segundo plano, ramificar ou orquestrar vários agentes.</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/background [prompt]</code></td><td>Destaca a sessão para rodar como <b>agente em segundo plano</b>, liberando o terminal. Apelido: <code>/bg</code>.</td></tr>
+        <tr><td><code>/tasks</code></td><td>Vê e gerencia tudo que está rodando em segundo plano. Também como <code>/bashes</code>.</td></tr>
+        <tr><td><code>/fork &lt;diretriz&gt;</code></td><td>Cria um subagente que herda a conversa e trabalha numa tarefa enquanto você continua.</td></tr>
+        <tr><td><code>/branch [nome]</code></td><td>Ramifica a conversa neste ponto para tentar outra direção sem perder a original.</td></tr>
+        <tr><td><code>/batch &lt;instrução&gt;</code></td><td>(Skill) Decompõe uma mudança grande em 5–30 unidades e roda cada uma em paralelo (worktrees).</td></tr>
+        <tr><td><code>/loop [intervalo] [prompt]</code></td><td>(Skill) Roda um prompt repetidamente. Ex.: <code>/loop 5m verifique se o deploy terminou</code>. Apelido: <code>/proactive</code>.</td></tr>
+        <tr><td><code>/workflows</code></td><td>Abre a visão de progresso dos <i>workflows</i> (orquestração de vários subagentes).</td></tr>
+        <tr><td><code>/stop</code></td><td>Para a sessão em segundo plano à qual você está conectado.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== 4. REVISÃO ===== -->
+    <section class="section" id="s-revisao">
+      <h2><span class="ic">✅</span>Antes de "entregar" (revisão de código)</h2>
+      <p class="lead">Conferir, simplificar e validar a mudança antes de fechar.</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/code-review [nível] [--fix] [--comment] [alvo]</code></td><td>(Skill) Revisa o <i>diff</i> atual buscando bugs e melhorias. <code>--fix</code> aplica correções; <code>ultra</code> roda revisão profunda na nuvem.</td></tr>
+        <tr><td><code>/review [PR]</code></td><td>Revisa um Pull Request do GitHub (mesma engine do <code>/code-review</code>, só leitura).</td></tr>
+        <tr><td><code>/simplify [alvo]</code></td><td>(Skill) Revisa o código só para limpeza/simplificação e aplica os ajustes (não caça bugs).</td></tr>
+        <tr><td><code>/security-review</code></td><td>Analisa as mudanças pendentes em busca de vulnerabilidades de segurança.</td></tr>
+        <tr><td><code>/ultrareview [PR]</code></td><td>Revisão profunda multiagente na nuvem. Prefira <code>/code-review ultra</code> (este é apelido).</td></tr>
+        <tr><td><code>/ultraplan &lt;prompt&gt;</code></td><td>Rascunha um plano numa sessão na nuvem, revisa no navegador e executa.</td></tr>
+        <tr><td><code>/verify</code></td><td>(Skill) Confirma que a mudança funciona rodando o app de verdade (não só testes).</td></tr>
+        <tr><td><code>/run</code></td><td>(Skill) Inicia e dirige o app do projeto para ver a mudança funcionando.</td></tr>
+        <tr><td><code>/run-skill-generator</code></td><td>(Skill) Ensina o <code>/run</code> e o <code>/verify</code> a iniciar o app do seu projeto.</td></tr>
+        <tr><td><code>/autofix-pr [prompt]</code></td><td>Cria sessão na nuvem que vigia o PR da branch e empurra correções quando o CI falha.</td></tr>
+        <tr><td><code>/install-github-app</code></td><td>Configura o app do Claude (GitHub Actions) no repositório.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== 5. SESSÕES ===== -->
+    <section class="section" id="s-sessoes">
+      <h2><span class="ic">🔁</span>Entre sessões / continuidade</h2>
+      <p class="lead">Retomar, renomear, voltar no tempo e mover a sessão entre lugares.</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/resume [sessão]</code></td><td>Retoma uma conversa por ID/nome, ou abre o seletor de sessões. Apelido: <code>/continue</code>.</td></tr>
+        <tr><td><code>/rename [nome]</code></td><td>Renomeia a sessão atual (mostra o nome na barra).</td></tr>
+        <tr><td><code>/rewind</code></td><td>Volta a conversa e/ou o código a um ponto anterior (checkpoints). Apelidos: <code>/checkpoint</code>, <code>/undo</code>.</td></tr>
+        <tr><td><code>/cd &lt;caminho&gt;</code></td><td>Move a sessão para um novo diretório de trabalho (preserva o cache).</td></tr>
+        <tr><td><code>/add-dir &lt;caminho&gt;</code></td><td>Adiciona um diretório de trabalho para acesso a arquivos na sessão atual.</td></tr>
+        <tr><td><code>/teleport</code></td><td>Puxa uma sessão do "Claude Code na web" para este terminal. Apelido: <code>/tp</code>.</td></tr>
+        <tr><td><code>/remote-control</code></td><td>Permite controlar esta sessão local a partir do claude.ai. Apelido: <code>/rc</code>.</td></tr>
+        <tr><td><code>/desktop</code></td><td>Continua a sessão no app Claude Code Desktop. Apelido: <code>/app</code>.</td></tr>
+        <tr><td><code>/remote-env</code></td><td>Escolhe o ambiente padrão para agentes na nuvem.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== 6. CONTA ===== -->
+    <section class="section" id="s-conta">
+      <h2><span class="ic">🩺</span>Conta, ajuda e diagnóstico</h2>
+      <p class="lead">Login, custos, saúde da instalação e feedback.</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/help</code></td><td>Mostra a ajuda e a lista de comandos disponíveis.</td></tr>
+        <tr><td><code>/login</code></td><td>Entra na sua conta Anthropic.</td></tr>
+        <tr><td><code>/logout</code></td><td>Sai da sua conta Anthropic.</td></tr>
+        <tr><td><code>/status</code></td><td>Abre o painel de status (versão, modelo, conta, conectividade).</td></tr>
+        <tr><td><code>/usage</code></td><td>Mostra custo da sessão, limites do plano e estatísticas. Apelidos: <code>/cost</code>, <code>/stats</code>.</td></tr>
+        <tr><td><code>/usage-credits</code></td><td>Configura créditos de uso para continuar quando bater o limite.</td></tr>
+        <tr><td><code>/doctor</code></td><td>Diagnostica a saúde da instalação e das configurações (tecle <code>f</code> para o Claude corrigir).</td></tr>
+        <tr><td><code>/debug [descrição]</code></td><td>(Skill) Liga o log de depuração e investiga problemas da sessão.</td></tr>
+        <tr><td><code>/feedback [relato]</code></td><td>Envia feedback / reporta bug com o contexto da sessão. Apelidos: <code>/bug</code>, <code>/share</code>.</td></tr>
+        <tr><td><code>/release-notes</code></td><td>Vê o changelog (novidades) por versão.</td></tr>
+        <tr><td><code>/privacy-settings</code></td><td>Vê e ajusta configurações de privacidade (planos Pro/Max).</td></tr>
+        <tr><td><code>/upgrade</code></td><td>Abre a página para mudar para um plano superior.</td></tr>
+        <tr><td><code>/heapdump</code></td><td>Salva um snapshot de memória no <code>~/Desktop</code> para diagnosticar uso alto de memória.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== 7. SKILLS ===== -->
+    <section class="section" id="s-skills">
+      <h2><span class="ic">🧩</span>Skills e workflows agendados</h2>
+      <p class="lead">Pesquisa, agendamentos na nuvem e integrações de equipe.</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/deep-research &lt;pergunta&gt;</code></td><td>(Workflow) Faz buscas na web, cruza fontes e gera um relatório com citações.</td></tr>
+        <tr><td><code>/claude-api [migrate|…]</code></td><td>(Skill) Carrega referência da Claude API para a linguagem do seu projeto.</td></tr>
+        <tr><td><code>/fewer-permission-prompts</code></td><td>(Skill) Cria uma allowlist no <code>settings.json</code> para reduzir pedidos de permissão.</td></tr>
+        <tr><td><code>/schedule [descrição]</code></td><td>Cria/edita/lista <i>routines</i> (tarefas) que rodam na nuvem em horário agendado. Apelido: <code>/routines</code>.</td></tr>
+        <tr><td><code>/team-onboarding</code></td><td>Gera um guia de integração para a equipe a partir do seu histórico de uso.</td></tr>
+        <tr><td><code>/web-setup</code></td><td>Conecta sua conta GitHub ao "Claude Code na web" usando o <code>gh</code> local.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== 8. EXTRAS ===== -->
+    <section class="section" id="s-extras">
+      <h2><span class="ic">✨</span>Extras / interface</h2>
+      <p class="lead">Personalização visual, voz, integrações e itens divertidos.</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/tui [default|fullscreen]</code></td><td>Define o renderizador da interface (modo tela cheia sem flicker).</td></tr>
+        <tr><td><code>/color [cor]</code></td><td>Muda a cor da barra de prompt da sessão.</td></tr>
+        <tr><td><code>/voice [hold|tap|off]</code></td><td>Liga/desliga a ditação por voz (requer conta claude.ai).</td></tr>
+        <tr><td><code>/scroll-speed</code></td><td>Ajusta a velocidade de rolagem do mouse (modo tela cheia).</td></tr>
+        <tr><td><code>/sandbox</code></td><td>Liga/desliga o modo <i>sandbox</i> (isolamento).</td></tr>
+        <tr><td><code>/advisor [modelo|off]</code></td><td>Liga/desliga a ferramenta "conselheira" (consulta um 2º modelo em momentos-chave).</td></tr>
+        <tr><td><code>/chrome</code></td><td>Configura a integração "Claude no Chrome".</td></tr>
+        <tr><td><code>/powerup</code></td><td>Lições interativas rápidas para descobrir recursos do Claude Code.</td></tr>
+        <tr><td><code>/radio</code></td><td>Abre a rádio lo-fi "Claude FM" no navegador.</td></tr>
+        <tr><td><code>/mobile</code></td><td>Mostra QR code para baixar o app móvel. Apelidos: <code>/ios</code>, <code>/android</code>.</td></tr>
+        <tr><td><code>/passes</code></td><td>Compartilha uma semana grátis de Claude Code com amigos (se elegível).</td></tr>
+        <tr><td><code>/stickers</code></td><td>Pede adesivos do Claude Code.</td></tr>
+        <tr><td><code>/exit</code></td><td>Sai do Claude Code. Apelido: <code>/quit</code>.</td></tr>
+      </tbody></table>
+      <div class="note">
+        <b>Observação.</b> Servidores MCP podem expor <i>prompts</i> que aparecem como comandos no formato <code>/mcp__&lt;servidor&gt;__&lt;prompt&gt;</code>. O comando <code>/vim</code> foi <b>removido</b> na v2.1.92 — agora use <code>/config</code> → Editor mode. O <code>/pr-comments</code> foi removido na v2.1.91 (peça direto ao Claude para ver os comentários do PR).
+      </div>
+    </section>
+
+    <!-- ===== GITHUB ===== -->
+    <section class="section" id="s-github">
+      <h2><span class="ic">🐙</span>Salvar no GitHub</h2>
+      <p class="lead">Use o prefixo <code>!</code> para rodar comandos Git/GitHub diretamente de dentro do Claude Code, sem sair da sessão. Requer <b>gh CLI</b> instalado (<code>! gh --version</code> para verificar).</p>
+      <h3>Primeiro uso (inicializar e publicar)</h3>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>! git init</code></td><td>Inicializa o repositório Git local na pasta atual.</td></tr>
+        <tr><td><code>! git add .</code></td><td>Adiciona todos os arquivos ao stage (prepara para o commit).</td></tr>
+        <tr><td><code>! git commit -m "mensagem"</code></td><td>Cria o primeiro commit com uma mensagem descritiva.</td></tr>
+        <tr><td><code>! gh repo create nome --public --source=. --push</code></td><td>Cria o repositório no GitHub <b>e já faz o push</b> num comando só (requer <code>gh auth login</code> feito antes).</td></tr>
+      </tbody></table>
+      <h3>Uso diário (salvar alterações)</h3>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>! git add .</code></td><td>Marca todos os arquivos modificados para envio.</td></tr>
+        <tr><td><code>! git commit -m "mensagem"</code></td><td>Registra as mudanças com uma mensagem.</td></tr>
+        <tr><td><code>! git push</code></td><td>Envia os commits para o GitHub.</td></tr>
+        <tr><td><code>! git pull</code></td><td>Baixa atualizações do GitHub para o PC.</td></tr>
+        <tr><td><code>! git status</code></td><td>Mostra quais arquivos foram alterados e ainda não foram commitados.</td></tr>
+        <tr><td><code>! git log --oneline -10</code></td><td>Lista os 10 últimos commits de forma resumida.</td></tr>
+      </tbody></table>
+      <h3>Integração com o Claude (CI/CD)</h3>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/install-github-app</code></td><td>Instala o app do Claude no repositório para revisar PRs e rodar correções automáticas via GitHub Actions.</td></tr>
+        <tr><td><code>claude setup-token</code></td><td>Gera token OAuth de longa duração para autenticação do Claude em pipelines de CI.</td></tr>
+        <tr><td><code>/autofix-pr</code></td><td>Cria sessão na nuvem que vigia o PR e envia correções quando o CI falha.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== VERCEL ===== -->
+    <section class="section" id="s-vercel">
+      <h2><span class="ic">▲</span>Deploy no Vercel</h2>
+      <p class="lead">Use o prefixo <code>!</code> para rodar o <b>Vercel CLI</b> dentro do Claude Code. Na primeira vez será pedido login no navegador. O projeto precisa estar no GitHub para deploy contínuo.</p>
+      <h3>Primeiro deploy</h3>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>! npx vercel</code></td><td>Inicia o deploy interativo: pede login (1ª vez), nome do projeto e configurações. Publica numa URL de preview.</td></tr>
+        <tr><td><code>! npx vercel --prod</code></td><td>Publica direto no domínio de produção (sem URL temporária de preview).</td></tr>
+      </tbody></table>
+      <h3>Uso diário</h3>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>! npx vercel --prod</code></td><td>Re-faz o deploy em produção com os arquivos atuais.</td></tr>
+        <tr><td><code>! npx vercel link</code></td><td>Vincula a pasta a um projeto Vercel já existente (quando o projeto foi criado pelo dashboard).</td></tr>
+        <tr><td><code>! npx vercel env pull</code></td><td>Baixa as variáveis de ambiente do Vercel para um arquivo <code>.env.local</code>.</td></tr>
+        <tr><td><code>! npx vercel logs</code></td><td>Vê os logs do último deploy.</td></tr>
+        <tr><td><code>! npx vercel ls</code></td><td>Lista todos os seus projetos e deploys no Vercel.</td></tr>
+        <tr><td><code>! npx vercel whoami</code></td><td>Confirma com qual conta Vercel você está autenticado.</td></tr>
+      </tbody></table>
+      <div class="note"><b>Dica:</b> conectar o repositório GitHub ao Vercel pelo dashboard (vercel.com) ativa o <b>deploy automático</b> a cada <code>git push</code> — sem precisar rodar o comando manualmente. Use <code>! git push</code> e o Vercel faz o resto.</div>
+    </section>
+
+    <!-- ===== LOVABLE ===== -->
+    <section class="section" id="s-lovable">
+      <h2><span class="ic">💜</span>Deploy no Lovable</h2>
+      <p class="lead"><b>Lovable</b> (lovable.dev) é um builder de apps com IA que importa projetos do GitHub. Não tem CLI própria — o fluxo é: <b>salvar no GitHub → importar no Lovable</b>.</p>
+      <h3>Pré-requisito: projeto no GitHub</h3>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>! git add .</code></td><td>Stage de todos os arquivos.</td></tr>
+        <tr><td><code>! git commit -m "versão inicial"</code></td><td>Commit dos arquivos do projeto.</td></tr>
+        <tr><td><code>! git push</code></td><td>Envia para o GitHub (repositório deve existir e ter o remote configurado).</td></tr>
+      </tbody></table>
+      <h3>Sincronizar mudanças com o Lovable</h3>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>! git add . &amp;&amp; git commit -m "update" &amp;&amp; git push</code></td><td>Salva, commita e envia tudo para o GitHub num comando encadeado. O Lovable puxa automaticamente se estiver conectado ao repositório.</td></tr>
+        <tr><td><code>! git log --oneline -5</code></td><td>Confirma que os commits chegaram antes de abrir o Lovable.</td></tr>
+      </tbody></table>
+      <div class="note">
+        <b>Passos no navegador (só na 1ª vez):</b>
+        <ul>
+          <li>Acesse <b>lovable.dev</b> → "Import from GitHub".</li>
+          <li>Autorize o acesso ao repositório do projeto.</li>
+          <li>Lovable importa o código e abre o editor com IA.</li>
+          <li>A partir daí, cada <code>git push</code> sincroniza automaticamente.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== 9. CLI ===== -->
+    <section class="section" id="s-cli">
+      <h2><span class="ic">⌨️</span>Comandos de terminal (CLI) — no PowerShell</h2>
+      <p class="lead">Digitados no terminal (não dentro do Claude Code).</p>
+      <table><thead><tr><th>Comando</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>claude</code></td><td>Inicia uma sessão interativa.</td></tr>
+        <tr><td><code>claude "pergunta"</code></td><td>Inicia a sessão já com um prompt inicial.</td></tr>
+        <tr><td><code>claude -p "pergunta"</code></td><td>Modo "print": responde e sai (ideal para scripts).</td></tr>
+        <tr><td><code>cat arquivo | claude -p "…"</code></td><td>Processa conteúdo vindo de um <i>pipe</i>.</td></tr>
+        <tr><td><code>claude -c</code></td><td>Continua a conversa mais recente do diretório atual.</td></tr>
+        <tr><td><code>claude -c -p "…"</code></td><td>Continua a conversa via modo print.</td></tr>
+        <tr><td><code>claude -r "sessão" "…"</code></td><td>Retoma uma sessão por ID ou nome.</td></tr>
+        <tr><td><code>claude update</code></td><td>Atualiza para a última versão.</td></tr>
+        <tr><td><code>claude install [versão]</code></td><td>Instala/reinstala o binário nativo (ex.: <code>stable</code>, <code>latest</code> ou <code>2.1.118</code>).</td></tr>
+        <tr><td><code>claude auth login</code></td><td>Entra na conta Anthropic (<code>--console</code> para faturar via API; <code>--sso</code> para SSO).</td></tr>
+        <tr><td><code>claude auth logout</code></td><td>Sai da conta Anthropic.</td></tr>
+        <tr><td><code>claude auth status</code></td><td>Mostra o status de autenticação (JSON; <code>--text</code> para legível).</td></tr>
+        <tr><td><code>claude agents</code></td><td>Abre a "agent view" para monitorar/disparar sessões em segundo plano.</td></tr>
+        <tr><td><code>claude attach &lt;id&gt;</code></td><td>Conecta-se a uma sessão em segundo plano neste terminal.</td></tr>
+        <tr><td><code>claude logs &lt;id&gt;</code></td><td>Mostra a saída recente de uma sessão em segundo plano.</td></tr>
+        <tr><td><code>claude respawn &lt;id&gt;</code></td><td>Reinicia uma sessão em segundo plano mantendo a conversa.</td></tr>
+        <tr><td><code>claude stop &lt;id&gt;</code></td><td>Para uma sessão em segundo plano (também <code>claude kill</code>).</td></tr>
+        <tr><td><code>claude rm &lt;id&gt;</code></td><td>Remove uma sessão em segundo plano da lista (transcrição fica salva).</td></tr>
+        <tr><td><code>claude mcp</code></td><td>Configura servidores MCP.</td></tr>
+        <tr><td><code>claude mcp login &lt;nome&gt;</code></td><td>Faz o fluxo OAuth de um servidor MCP pela linha de comando.</td></tr>
+        <tr><td><code>claude mcp logout &lt;nome&gt;</code></td><td>Limpa as credenciais OAuth de um servidor MCP.</td></tr>
+        <tr><td><code>claude config</code></td><td>Gerencia configurações pela linha de comando.</td></tr>
+        <tr><td><code>claude plugin</code></td><td>Gerencia plugins (apelido: <code>claude plugins</code>).</td></tr>
+        <tr><td><code>claude project purge [caminho]</code></td><td>Apaga o estado local do projeto (transcrições, logs, histórico…).</td></tr>
+        <tr><td><code>claude remote-control</code></td><td>Inicia um servidor de Controle Remoto (controlar via claude.ai/app).</td></tr>
+        <tr><td><code>claude setup-token</code></td><td>Gera um token OAuth de longa duração para CI e scripts.</td></tr>
+        <tr><td><code>claude auto-mode defaults</code></td><td>Imprime as regras do classificador do "auto mode" (JSON).</td></tr>
+        <tr><td><code>claude daemon status</code></td><td>Mostra o estado do supervisor de sessões em segundo plano.</td></tr>
+        <tr><td><code>claude daemon stop --any</code></td><td>Para o supervisor de sessões em segundo plano.</td></tr>
+        <tr><td><code>claude ultrareview [alvo]</code></td><td>Roda a ultrarrevisão de forma não-interativa (imprime os achados).</td></tr>
+        <tr><td><code>claude --version</code> (<code>-v</code>)</td><td>Mostra o número da versão.</td></tr>
+        <tr><td><code>claude --help</code> (<code>-h</code>)</td><td>Mostra a ajuda.</td></tr>
+      </tbody></table>
+      <div class="note">Se você digitar errado, o Claude Code sugere o mais próximo. Ex.: <code>claude udpate</code> → "Did you mean claude update?".</div>
+    </section>
+
+    <!-- ===== 10. FLAGS ===== -->
+    <section class="section" id="s-flags">
+      <h2><span class="ic">🚩</span>Flags (opções) da linha de comando</h2>
+      <p class="lead">As mais úteis. (<code>claude --help</code> não lista todas — a ausência ali não significa indisponível.)</p>
+      <h3>Modelo e raciocínio</h3>
+      <table><thead><tr><th>Flag</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>--model &lt;modelo&gt;</code></td><td>Define o modelo da sessão (<code>sonnet</code>, <code>opus</code>, <code>haiku</code>, <code>fable</code> ou ID completo).</td></tr>
+        <tr><td><code>--fallback-model &lt;lista&gt;</code></td><td>Modelo(s) reserva quando o principal está sobrecarregado/indisponível.</td></tr>
+        <tr><td><code>--effort &lt;nível&gt;</code></td><td>Nível de esforço: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>.</td></tr>
+        <tr><td><code>--advisor &lt;modelo&gt;</code></td><td>Liga a ferramenta conselheira (<code>opus</code>, <code>sonnet</code>, <code>fable</code>…).</td></tr>
+      </tbody></table>
+      <h3>Modo "print" / automação (scripts)</h3>
+      <table><thead><tr><th>Flag</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>--print</code>, <code>-p</code></td><td>Imprime a resposta sem modo interativo.</td></tr>
+        <tr><td><code>--output-format &lt;fmt&gt;</code></td><td>Formato de saída: <code>text</code>, <code>json</code>, <code>stream-json</code>.</td></tr>
+        <tr><td><code>--input-format &lt;fmt&gt;</code></td><td>Formato de entrada: <code>text</code>, <code>stream-json</code>.</td></tr>
+        <tr><td><code>--json-schema '&lt;schema&gt;'</code></td><td>Saída validada conforme um JSON Schema (modo print).</td></tr>
+        <tr><td><code>--max-turns &lt;n&gt;</code></td><td>Limita o número de turnos (modo print).</td></tr>
+        <tr><td><code>--max-budget-usd &lt;valor&gt;</code></td><td>Teto de gasto em dólares antes de parar (modo print).</td></tr>
+        <tr><td><code>--bare</code></td><td>Modo mínimo: pula descoberta de hooks/skills/plugins/MCP/CLAUDE.md (mais rápido).</td></tr>
+        <tr><td><code>--verbose</code></td><td>Log detalhado, turno a turno.</td></tr>
+      </tbody></table>
+      <h3>Permissões e ferramentas</h3>
+      <table><thead><tr><th>Flag</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>--permission-mode &lt;modo&gt;</code></td><td>Inicia em um modo: <code>default</code>, <code>acceptEdits</code>, <code>plan</code>, <code>auto</code>, <code>dontAsk</code>, <code>bypassPermissions</code>.</td></tr>
+        <tr><td><code>--dangerously-skip-permissions</code></td><td><b>⚠️ Pula todos os pedidos de permissão.</b> Use com muito cuidado.</td></tr>
+        <tr><td><code>--allow-dangerously-skip-permissions</code></td><td>Adiciona o <code>bypassPermissions</code> ao ciclo do Shift+Tab sem iniciar nele.</td></tr>
+        <tr><td><code>--allowedTools "…"</code></td><td>Ferramentas que executam sem pedir permissão.</td></tr>
+        <tr><td><code>--disallowedTools "…"</code></td><td>Regras de negação de ferramentas.</td></tr>
+        <tr><td><code>--tools "Bash,Edit,Read"</code></td><td>Restringe quais ferramentas embutidas o Claude pode usar.</td></tr>
+      </tbody></table>
+      <h3>Diretórios, sessão e contexto</h3>
+      <table><thead><tr><th>Flag</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>--add-dir &lt;caminho&gt;</code></td><td>Adiciona diretórios de trabalho.</td></tr>
+        <tr><td><code>--resume &lt;id&gt;</code>, <code>-r</code></td><td>Retoma uma sessão específica (ou abre o seletor).</td></tr>
+        <tr><td><code>--continue</code>, <code>-c</code></td><td>Carrega a conversa mais recente do diretório.</td></tr>
+        <tr><td><code>--fork-session</code></td><td>Ao retomar, cria um novo ID em vez de reutilizar o original.</td></tr>
+        <tr><td><code>--session-id &lt;uuid&gt;</code></td><td>Usa um ID de sessão específico.</td></tr>
+        <tr><td><code>--name &lt;nome&gt;</code>, <code>-n</code></td><td>Define um nome de exibição para a sessão.</td></tr>
+        <tr><td><code>--worktree &lt;nome&gt;</code>, <code>-w</code></td><td>Inicia em um <i>git worktree</i> isolado.</td></tr>
+        <tr><td><code>--ide</code></td><td>Conecta automaticamente à IDE no início.</td></tr>
+        <tr><td><code>--chrome</code> / <code>--no-chrome</code></td><td>Liga/desliga a integração com o Chrome.</td></tr>
+      </tbody></table>
+      <h3>MCP, plugins e prompt do sistema</h3>
+      <table><thead><tr><th>Flag</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>--mcp-config &lt;arquivo&gt;</code></td><td>Carrega servidores MCP de arquivos/strings JSON.</td></tr>
+        <tr><td><code>--strict-mcp-config</code></td><td>Usa só os servidores MCP do <code>--mcp-config</code>.</td></tr>
+        <tr><td><code>--plugin-dir &lt;caminho&gt;</code></td><td>Carrega um plugin de uma pasta/<code>.zip</code> só nesta sessão.</td></tr>
+        <tr><td><code>--settings &lt;arquivo&gt;</code></td><td>Caminho (ou JSON) de configurações que sobrescrevem o <code>settings.json</code>.</td></tr>
+        <tr><td><code>--system-prompt "…"</code></td><td>Substitui todo o prompt do sistema.</td></tr>
+        <tr><td><code>--append-system-prompt "…"</code></td><td>Acrescenta texto ao final do prompt do sistema padrão.</td></tr>
+        <tr><td><code>--safe-mode</code></td><td>Inicia com todas as customizações desativadas (para diagnosticar).</td></tr>
+        <tr><td><code>--debug "api,mcp"</code></td><td>Liga o modo de depuração com filtro de categorias.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== 11. ATALHOS ===== -->
+    <section class="section" id="s-atalhos">
+      <h2><span class="ic">🎹</span>Atalhos de teclado</h2>
+      <p class="lead">Teclas para controlar, editar e inserir novas linhas.</p>
+      <h3>Controles gerais</h3>
+      <table><thead><tr><th>Atalho</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>Esc</code></td><td>Interrompe o Claude no meio do turno (mantém o trabalho feito).</td></tr>
+        <tr><td><code>Esc</code> <code>Esc</code></td><td>Com texto digitado: limpa e salva no histórico. Vazio: abre o menu de <i>rewind</i> (checkpoints).</td></tr>
+        <tr><td><code>Ctrl+C</code></td><td>Interrompe a operação; ou limpa a entrada; pressionado de novo (vazio) sai do Claude Code.</td></tr>
+        <tr><td><code>Ctrl+D</code></td><td>Sai da sessão do Claude Code (sinal EOF).</td></tr>
+        <tr><td><code>Ctrl+L</code></td><td>Redesenha a tela (recupera display embaralhado).</td></tr>
+        <tr><td><code>Ctrl+O</code></td><td>Liga/desliga o visualizador de transcrição (detalhes de ferramentas).</td></tr>
+        <tr><td><code>Ctrl+R</code></td><td>Busca reversa no histórico de comandos.</td></tr>
+        <tr><td><code>Ctrl+B</code></td><td>Joga a tarefa/comando atual para segundo plano (tmux: duas vezes).</td></tr>
+        <tr><td><code>Ctrl+T</code></td><td>Liga/desliga a lista de tarefas.</td></tr>
+        <tr><td><code>Ctrl+G</code> ou <code>Ctrl+X Ctrl+E</code></td><td>Abre o prompt no seu editor de texto padrão.</td></tr>
+        <tr><td><code>Ctrl+V</code> / <code>Alt+V</code> (Win/WSL)</td><td>Cola imagem da área de transferência (insere chip <code>[Image #N]</code>).</td></tr>
+        <tr><td><code>Ctrl+X Ctrl+K</code></td><td>Para todos os subagentes em segundo plano (duas vezes em 3s para confirmar).</td></tr>
+        <tr><td><code>Shift+Tab</code> (ou <code>Alt+M</code>)</td><td>Alterna os modos de permissão (<code>default</code>, <code>acceptEdits</code>, <code>plan</code>, <code>auto</code>…).</td></tr>
+        <tr><td><code>Alt+P</code> (Win/Linux)</td><td>Troca o modelo sem limpar o prompt.</td></tr>
+        <tr><td><code>Alt+T</code> (Win/Linux)</td><td>Liga/desliga o <i>extended thinking</i> (raciocínio estendido).</td></tr>
+        <tr><td><code>Alt+O</code> (Win/Linux)</td><td>Liga/desliga o <b>modo rápido</b>.</td></tr>
+        <tr><td><code>↑</code> / <code>↓</code> (ou <code>Ctrl+P</code>/<code>Ctrl+N</code>)</td><td>Move o cursor; nas bordas, navega o histórico de comandos.</td></tr>
+        <tr><td><code>←</code> / <code>→</code></td><td>Navega entre abas de diálogos/menus.</td></tr>
+      </tbody></table>
+      <h3>Edição de texto</h3>
+      <table><thead><tr><th>Atalho</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>Ctrl+A</code></td><td>Vai para o início da linha.</td></tr>
+        <tr><td><code>Ctrl+E</code></td><td>Vai para o fim da linha.</td></tr>
+        <tr><td><code>Ctrl+K</code></td><td>Apaga até o fim da linha (guarda para colar).</td></tr>
+        <tr><td><code>Ctrl+U</code></td><td>Apaga do cursor até o início da linha (guarda para colar).</td></tr>
+        <tr><td><code>Ctrl+W</code></td><td>Apaga a palavra anterior (no Windows, <code>Ctrl+Backspace</code> também).</td></tr>
+        <tr><td><code>Ctrl+Y</code></td><td>Cola o texto apagado com <code>Ctrl+K/U/W</code>.</td></tr>
+        <tr><td><code>Alt+B</code> / <code>Alt+F</code></td><td>Move o cursor uma palavra para trás / para frente.</td></tr>
+      </tbody></table>
+      <h3>Nova linha (entrada multilinha)</h3>
+      <table><thead><tr><th>Atalho</th><th>Contexto</th></tr></thead><tbody>
+        <tr><td><code>\</code> + <code>Enter</code></td><td>Funciona em qualquer terminal.</td></tr>
+        <tr><td><code>Ctrl+J</code></td><td>Funciona em qualquer terminal, sem configurar.</td></tr>
+        <tr><td><code>Shift+Enter</code></td><td>Nativo em alguns terminais; nos demais (VS Code, Cursor…) rode <code>/terminal-setup</code>.</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- ===== 12. PREFIXOS ===== -->
+    <section class="section" id="s-prefixos">
+      <h2><span class="ic">❗</span>Modos especiais e prefixos</h2>
+      <p class="lead">Caracteres no início da mensagem que mudam o comportamento.</p>
+      <table><thead><tr><th>Prefixo / tecla</th><th>O que faz</th></tr></thead><tbody>
+        <tr><td><code>/</code> (no início)</td><td>Executa um comando ou skill.</td></tr>
+        <tr><td><code>!</code> (no início)</td><td><b>Modo shell:</b> roda um comando direto, adiciona a saída ao contexto e o Claude responde a ela. Ex.: <code>! npm test</code>, <code>! git status</code>.</td></tr>
+        <tr><td><code>@</code></td><td><b>Menção de arquivo:</b> dispara o autocompletar de caminhos de arquivo para referenciar no prompt.</td></tr>
+        <tr><td>Colar imagem</td><td><code>Ctrl+V</code>/<code>Alt+V</code> insere a imagem para você referenciar no texto.</td></tr>
+      </tbody></table>
+      <div class="note">O modo shell (<code>!</code>) sai com <code>Esc</code>, <code>Backspace</code> ou <code>Ctrl+U</code> no prompt vazio, e aceita autocompletar com <code>Tab</code> a partir de comandos <code>!</code> anteriores do projeto.</div>
+    </section>
+
+    <!-- ===== 13. VIM ===== -->
+    <section class="section" id="s-vim">
+      <h2><span class="ic">📝</span>Modo Vim (edição estilo Vim)</h2>
+      <p class="lead">Ative em <code>/config</code> → <b>Editor mode</b>. Principais comandos no modo NORMAL:</p>
+      <div class="vim-block"><b>Trocar de modo:</b> <code>Esc</code> (NORMAL), <code>i</code>/<code>I</code> (inserir antes/início), <code>a</code>/<code>A</code> (inserir depois/fim), <code>o</code>/<code>O</code> (abrir linha abaixo/acima), <code>v</code>/<code>V</code> (seleção visual).</div>
+      <div class="vim-block"><b>Navegar:</b> <code>h</code>/<code>j</code>/<code>k</code>/<code>l</code> (←↓↑→), <code>w</code> (próxima palavra), <code>e</code> (fim da palavra), <code>b</code> (palavra anterior), <code>0</code> (início da linha), <code>$</code> (fim da linha), <code>^</code> (1º caractere não-branco), <code>gg</code>/<code>G</code> (início/fim), <code>f{c}</code>/<code>F{c}</code> (pular para caractere).</div>
+      <div class="vim-block"><b>Editar:</b> <code>x</code> (apaga caractere), <code>dd</code> (apaga linha), <code>D</code> (apaga até o fim), <code>dw</code>/<code>cw</code>/<code>yw</code> (apagar/mudar/copiar palavra), <code>cc</code> (muda linha), <code>yy</code>/<code>Y</code> (copia linha), <code>p</code>/<code>P</code> (cola depois/antes), <code>u</code> (desfaz), <code>.</code> (repete a última mudança), <code>&gt;&gt;</code>/<code>&lt;&lt;</code> (indenta/desindenta).</div>
+      <div class="vim-block"><b>Objetos de texto</b> (com <code>d</code>, <code>c</code>, <code>y</code>): <code>iw</code>/<code>aw</code> (palavra), <code>i"</code>/<code>a"</code> (aspas), <code>i(</code>/<code>a(</code> (parênteses), <code>i{</code>/<code>a{</code> (chaves), etc.</div>
+    </section>
+
+    <!-- ===== 14. GUIA ===== -->
+    <section class="section" id="s-guia">
+      <h2><span class="ic">💡</span>"O que isso significa pra mim" — guia rápido do dia a dia</h2>
+      <p class="lead">Tradução prática dos comandos que mais valem a pena no uso comum.</p>
+      <div class="cards">
+        <div class="card"><h4>Conversa ficou enorme e lenta?</h4>
+          <p><code>/compact</code> → resume e libera espaço <b>mantendo</b> a conversa.</p>
+          <p><code>/clear</code> → começa <b>do zero</b> (mantém só a memória do projeto). Use ao trocar de assunto.</p>
+          <p><code>/context</code> → mostra "onde está indo" a memória, se quiser entender o consumo.</p>
+        </div>
+        <div class="card"><h4>Quer ver quanto está gastando?</h4>
+          <p><code>/usage</code> (ou <code>/cost</code>) mostra custo e limites do plano.</p>
+        </div>
+        <div class="card"><h4>Fechou e quer voltar de onde parou?</h4>
+          <p><code>claude -c</code> (no terminal) ou <code>/resume</code> (dentro). Para nomear sessões e achar depois: <code>claude -n "meu-trabalho"</code>.</p>
+        </div>
+        <div class="card"><h4>Errou e quer desfazer?</h4>
+          <p><code>/rewind</code> volta a um ponto anterior (checkpoint). É a sua "rede de segurança".</p>
+        </div>
+        <div class="card"><h4>Quer planejar antes de mexer em tudo?</h4>
+          <p><code>/plan</code> (ou <code>Shift+Tab</code> até o modo <i>plan</i>). Ele propõe e só executa após sua aprovação.</p>
+        </div>
+        <div class="card"><h4>Algo parou de funcionar?</h4>
+          <p><code>/doctor</code> diagnostica a instalação; <code>/status</code> mostra versão, modelo e conexão.</p>
+        </div>
+        <div class="card"><h4>Rodar um comando do sistema sem sair?</h4>
+          <p>Use <code>!</code> na frente. Ex.: <code>! ipconfig</code>.</p>
+        </div>
+        <div class="card"><h4>Apontar um arquivo específico?</h4>
+          <p>Digite <code>@</code> e comece a escrever o caminho.</p>
+        </div>
+        <div class="card"><h4>Nível de "capricho" da resposta</h4>
+          <p><code>/model</code> (troca o modelo) e <code>/effort</code> (quão fundo ele pensa). <code>/fast</code> deixa o Opus mais ágil.</p>
+        </div>
+        <div class="card"><h4>Acabar a tarefa</h4>
+          <p><code>/exit</code> (ou <code>Ctrl+D</code>) para sair.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="no-results" id="noResults">
+      <h2>Nada encontrado 🤔</h2>
+      <p>Nenhum comando, atalho ou flag corresponde à sua busca. Tente outra palavra.</p>
+    </div>
+
+    <footer>
+      Gerado pelo Claude Code (engenheiro de informática pessoal do Edney) a partir da documentação oficial em <b>code.claude.com/docs</b>.
+      Para a referência sempre atualizada, use <code>/help</code> dentro do Claude Code ou <code>claude --help</code> no terminal. · Atualizado em 23/06/2026.
+    </footer>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  // ---- CLIQUE-PARA-COPIAR (comandos da 1ª coluna) ----
+  var toast = document.getElementById('toast'), toastT;
+  function showToast(txt){
+    toast.innerHTML = '✓ Copiado: <code>'+txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code> — cole com Ctrl+V';
+    toast.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ toast.classList.remove('show'); }, 2600);
+  }
+  function copyText(txt){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ showToast(txt); }, function(){ fallbackCopy(txt); });
+    } else { fallbackCopy(txt); }
+  }
+  function fallbackCopy(txt){
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try{ document.execCommand('copy'); showToast(txt); }catch(e){}
+    document.body.removeChild(ta);
+  }
+  // Bug 4 fix: suporte a teclado — adiciona tabindex a todas as células de comando
+  document.querySelectorAll('td:first-child').forEach(function(td){
+    td.setAttribute('tabindex','0');
+    td.setAttribute('role','button');
+    td.setAttribute('aria-label','Copiar comando');
+  });
+  document.addEventListener('keydown', function(e){
+    if((e.key==='Enter'||e.key===' ') && e.target.matches('td:first-child')){
+      e.preventDefault();
+      var code = e.target.querySelector('code') || e.target;
+      var raw = code.textContent.trim();
+      var cmd = raw.replace(/\s+[\[<][^\]>]*[\]>]/g,'').replace(/\s+\([^)]*\)/g,'').replace(/…/g,'').trim() || raw;
+      if(cmd) copyText(cmd);
+    }
+  });
+
+  document.addEventListener('click', function(e){
+    if(!e.target.closest) return;
+    // aceita clique em qualquer ponto da célula do comando (inclusive no ícone ⧉)
+    var cell = e.target.closest('td:first-child');
+    if(!cell) return;
+    var code = cell.querySelector('code') || cell;
+    // Bug 2 fix: remove placeholders [opcional] e <obrigatório> antes de copiar
+    var raw = code.textContent.trim();
+    var cmd = raw.replace(/\s+[\[<][^\]>]*[\]>]/g,'').replace(/\s+\([^)]*\)/g,'').replace(/…/g,'').trim() || raw;
+    if(!cmd) return;
+    copyText(cmd);
+    e.stopPropagation();
+  });
+
+  var navItems = Array.prototype.slice.call(document.querySelectorAll('.nav-item'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.section'));
+  var search   = document.getElementById('search');
+  var noResults= document.getElementById('noResults');
+  var sidebar  = document.getElementById('sidebar');
+
+  function showSection(id){
+    sections.forEach(function(s){ s.classList.toggle('active', s.id===id); });
+    navItems.forEach(function(n){ n.classList.toggle('active', n.dataset.target===id); });
+    document.querySelector('.main').scrollTop = 0;
+    window.scrollTo(0,0);
+    // Bug 3 fix: replaceState pode lançar SecurityError em file:// com origem opaca
+    try{ if(history.replaceState) history.replaceState(null,'','#'+id); }catch(e){}
+    sidebar.classList.remove('open');
+  }
+
+  navItems.forEach(function(n){
+    n.addEventListener('click', function(){
+      if(search.value){ search.value=''; runSearch(''); }
+      showSection(n.dataset.target);
+    });
+  });
+
+  // initial section (from hash or first)
+  var initial = (location.hash||'').replace('#','');
+  if(!document.getElementById(initial) || !initial){ initial = 's-config'; }
+  showSection(initial);
+
+  // ---- SEARCH ----
+  function clearHighlights(){
+    document.querySelectorAll('.hl').forEach(function(el){
+      el.replaceWith(document.createTextNode(el.textContent));
+    });
+    // normalize text nodes
+    document.querySelectorAll('table td, .card, .vim-block, .note').forEach(function(n){ n.normalize(); });
+  }
+
+  function runSearch(q){
+    q = q.trim().toLowerCase();
+    clearHighlights();
+
+    if(!q){
+      noResults.classList.remove('show');
+      sections.forEach(function(s){ s.style.display=''; });
+      document.querySelectorAll('tbody tr').forEach(function(r){ r.style.display=''; });
+      document.querySelectorAll('.section h3, .section table').forEach(function(e){ e.style.display=''; });
+      // Bug 1 fix: reset cards e vim-blocks que podem ter sido ocultados pela busca
+      document.querySelectorAll('.card, .vim-block').forEach(function(b){ b.style.display=''; });
+      // restore single-section view
+      var current = document.querySelector('.nav-item.active');
+      showSection(current ? current.dataset.target : 's-config');
+      return;
+    }
+
+    var totalHits = 0;
+    sections.forEach(function(sec){
+      var secHits = 0;
+      // table rows
+      var rows = sec.querySelectorAll('tbody tr');
+      rows.forEach(function(r){
+        var match = r.textContent.toLowerCase().indexOf(q) !== -1;
+        r.style.display = match ? '' : 'none';
+        if(match){ secHits++; }
+      });
+      // cards / vim blocks / notes (non-table sections)
+      var blocks = sec.querySelectorAll('.card, .vim-block');
+      blocks.forEach(function(b){
+        var match = b.textContent.toLowerCase().indexOf(q) !== -1;
+        b.style.display = match ? '' : 'none';
+        if(match){ secHits++; }
+      });
+      // hide empty sub-tables/headings
+      sec.querySelectorAll('table').forEach(function(t){
+        var visible = t.querySelectorAll('tbody tr:not([style*="none"])').length;
+        var h3 = t.previousElementSibling && t.previousElementSibling.tagName==='H3' ? t.previousElementSibling : null;
+        t.style.display = visible ? '' : 'none';
+        if(h3) h3.style.display = visible ? '' : 'none';
+      });
+      // show section if it has hits; in search mode we show ALL matching sections stacked
+      sec.style.display = secHits ? 'block' : 'none';
+      sec.classList.toggle('active', !!secHits);
+      totalHits += secHits;
+    });
+
+    noResults.classList.toggle('show', totalHits===0);
+    if(totalHits>0) highlight(q);
+  }
+
+  function highlight(q){
+    var walkTargets = document.querySelectorAll('.section.active tbody tr:not([style*="none"]) td, .section.active .card, .section.active .vim-block');
+    walkTargets.forEach(function(host){
+      highlightInNode(host, q);
+    });
+  }
+  function highlightInNode(node, q){
+    var children = Array.prototype.slice.call(node.childNodes);
+    children.forEach(function(child){
+      if(child.nodeType===3){ // text
+        var txt = child.nodeValue;
+        var lower = txt.toLowerCase();
+        var idx = lower.indexOf(q);
+        if(idx!==-1){
+          var span = document.createElement('span');
+          var before = document.createTextNode(txt.slice(0,idx));
+          var mark = document.createElement('span');
+          mark.className='hl'; mark.textContent = txt.slice(idx, idx+q.length);
+          var after = document.createTextNode(txt.slice(idx+q.length));
+          var frag = document.createDocumentFragment();
+          frag.appendChild(before); frag.appendChild(mark); frag.appendChild(after);
+          child.replaceWith(frag);
+        }
+      } else if(child.nodeType===1 && !child.classList.contains('hl')){
+        highlightInNode(child, q);
+      }
+    });
+  }
+
+  var t;
+  search.addEventListener('input', function(){
+    clearTimeout(t);
+    t = setTimeout(function(){ runSearch(search.value); }, 120);
+  });
+  search.addEventListener('keydown', function(e){ if(e.key==='Escape'){ search.value=''; runSearch(''); } });
+
+  // ---- THEME ----
+  var themeBtn = document.getElementById('themeBtn');
+  function applyTheme(mode){
+    document.documentElement.setAttribute('data-theme', mode);
+    themeBtn.textContent = mode==='dark' ? '☀️ Tema' : '🌙 Tema';
+    try{ localStorage.setItem('cc-theme', mode); }catch(e){}
+  }
+  var saved = 'light';
+  try{ saved = localStorage.getItem('cc-theme') || 'light'; }catch(e){}
+  applyTheme(saved);
+  themeBtn.addEventListener('click', function(){
+    var cur = document.documentElement.getAttribute('data-theme');
+    applyTheme(cur==='dark' ? 'light' : 'dark');
+  });
+
+  // ---- PRINT ----
+  document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
+
+  // ---- MOBILE MENU ----
+  document.getElementById('menuBtn').addEventListener('click', function(){ sidebar.classList.toggle('open'); });
+
+  // ---- KEYBOARD: "/" focuses search ----
+  document.addEventListener('keydown', function(e){
+    if(e.key==='/' && document.activeElement!==search){
+      e.preventDefault(); search.focus();
+    }
+  });
+})();
+</script>
+</body>
+</html>
